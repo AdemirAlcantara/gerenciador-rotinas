@@ -1,14 +1,27 @@
 import mongoose from 'mongoose';
+import { formatDateString } from '../../utils/utils.js';
 
 const TaskSchema = new mongoose.Schema(
     {
         title: { type: String, required: true, trim: true },
         description: { type: String, required: false, default: '' },
+        dueDate: {
+            type: String,
+            required: true,
+            default: () => formatDateString(new Date()),
+            match: [/^\d{4}-\d{2}-\d{2}$/, 'Formato de data inválido (esperado YYYY-MM-DD)']
+        },
         timeBlock: {
             type: String,
             enum: ['Manha', 'Tarde', 'Noite', 'Qualquer'],
             default: 'Qualquer',
             required: true
+        },
+        targetTime: {
+            type: String,
+            match: [/^([01]\d|2[0-3]):([0-5]\d)$/, 'Formato de horário inválido (esperado HH:mm)'],
+            required: false,
+            default: null
         },
         startTime: {
             type: String,
@@ -31,6 +44,14 @@ const TaskSchema = new mongoose.Schema(
             type: String,
             enum: ['Baixa', 'Média', 'Alta'],
             default: 'Média'
+        },
+        notified: {
+            type: Boolean,
+            default: false
+        },
+        notifiedAt: {
+            type: Date,
+            default: null
         },
         routine: {
             type: mongoose.Schema.Types.ObjectId,
@@ -55,6 +76,15 @@ const TaskSchema = new mongoose.Schema(
         timestamps: true,
     }
 );
+
+TaskSchema.pre('save', function () {
+    if (!this.targetTime && this.startTime) {
+        this.targetTime = this.startTime;
+    }
+    if (!this.startTime && this.targetTime) {
+        this.startTime = this.targetTime;
+    }
+});
 
 const TaskModel = mongoose.model('Task', TaskSchema);
 
