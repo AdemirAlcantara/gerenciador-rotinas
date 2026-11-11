@@ -12,8 +12,10 @@ import {
 } from './middlewares/middlewares.js';
 import router from './routes/router.js';
 import Database from './config/db.js';
+import path from 'path';
+import { __dirname } from './utils/utils.js';
 
-dotenv.config();
+dotenv.config({ path: path.join(__dirname, '.env') });
 
 const app = express();
 

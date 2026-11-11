@@ -12,19 +12,13 @@ if (!fs.existsSync(logsPath)) {
     fs.mkdirSync(logsPath, { recursive: true });
 }
 
-const corsMiddleware = cors(); // habilita CORS para comunicação com o frontend (AxiosInstance)
-
-const staticMiddleware = express.static(assetsPath); // intermedia arquivos estáticos (css, img)
-
-const urlencodedMiddleware = express.urlencoded({ extended: true }); // parse de dados urlencoded para um objeto
-
-const jsonMiddleware = express.json(); // parse de dados JSON para um objeto
-
-const securityMiddleware = helmet(); // configura cabeçalhos de segurança HTTP
-
-const compressionMiddleware = compression(); // comprime respostas HTTP para reduzir o tamanho da resposta
-
-const rateLimitMiddleware = rateLimit({ // limita a taxa de requisições num endereço IP
+const corsMiddleware = cors({ origin: '*'});
+const staticMiddleware = express.static(assetsPath);
+const urlencodedMiddleware = express.urlencoded({ extended: true });
+const jsonMiddleware = express.json();
+const securityMiddleware = helmet();
+const compressionMiddleware = compression();
+const rateLimitMiddleware = rateLimit({
     windowMs: 10 * 60 * 1000,
     max: 100,
     message: 'Muitas requisições, tente novamente em 10 minutos.'
