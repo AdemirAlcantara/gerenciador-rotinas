@@ -4,8 +4,28 @@ class HabitController {
 
     static async create(req, res) {
         try {
-            const { habit, description, frequency, targetTime, period, category } = req.body;
-            const newHabit = new Habit({ habit, description, frequency, targetTime, period, category });
+            const {
+                habit,
+                description,
+                frequency,
+                daysOfWeek,
+                dayOfMonth,
+                targetTime,
+                period,
+                category,
+                active
+            } = req.body;
+            const newHabit = new Habit({
+                habit,
+                description,
+                frequency,
+                daysOfWeek,
+                dayOfMonth,
+                targetTime,
+                period,
+                category,
+                active
+            });
             const saved = await newHabit.save();
             return res.status(201).json(saved);
         } catch (error) {
