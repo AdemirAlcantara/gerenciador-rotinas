@@ -11,9 +11,12 @@
 ### Para inicializar o Backend
 
 - cd backend
+- npm install
 - docker compose up -d
 - npm start
 
 ### Para inicializar o Frontend
 
+- cd frontend
+- npm install
 - npm run serve
