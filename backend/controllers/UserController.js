@@ -1,4 +1,5 @@
 import User from '../models/User.js';
+import bcrypt from 'bcryptjs';
 
 class UserController {
 
@@ -10,7 +11,8 @@ class UserController {
                 return res.status(409).json({ error: 'E-mail já cadastrado' });
             }
 
-            const newUser = new User({ name, email, password, bio, productivityGoals, preferences });
+            const passwordHash = await bcrypt.hash(password, 12);
+            const newUser = new User({ name, email, password: passwordHash, bio, productivityGoals, preferences });
             const saved = await newUser.save();
             const userResponse = saved.toObject();
             delete userResponse.password;
@@ -44,7 +46,11 @@ class UserController {
 
     static async update(req, res) {
         try {
-            const updated = await User.update(req.params.id, req.body);
+            const updateData = { ...req.body };
+            if (updateData.password !== undefined) {
+                updateData.password = await bcrypt.hash(updateData.password, 12);
+            }
+            const updated = await User.update(req.params.id, updateData);
             if (!updated) {
                 return res.status(404).json({ error: 'Usuário não encontrado' });
             }

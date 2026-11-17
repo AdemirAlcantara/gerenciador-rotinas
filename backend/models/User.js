@@ -38,6 +38,13 @@ class User {
         return await UserModel.findById(id).select('-password');
     }
 
+    static async findByIdWithPassword(id) {
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return null;
+        }
+        return await UserModel.findById(id);
+    }
+
     static async findByEmail(email) {
         return await UserModel.findOne({ email: email?.toLowerCase()?.trim() });
     }
@@ -64,6 +71,13 @@ class User {
             return null;
         }
         return await UserModel.findByIdAndDelete(id).select('-password');
+    }
+
+    static async updatePassword(id, password) {
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return null;
+        }
+        return await UserModel.findByIdAndUpdate(id, { password }, { new: true }).select('-password');
     }
 
 }

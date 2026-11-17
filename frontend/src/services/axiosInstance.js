@@ -20,5 +20,18 @@ axiosInstance.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+axiosInstance.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401 && localStorage.getItem('token')) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.dispatchEvent(new Event('auth-change'));
+      window.location.hash = '#/login';
+    }
+    return Promise.reject(error);
+  }
+);
+
 export default axiosInstance;
 

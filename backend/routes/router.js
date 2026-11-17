@@ -4,6 +4,8 @@ import HabitController from '../controllers/HabitController.js';
 import UserController from '../controllers/UserController.js';
 import RoutineController from '../controllers/RoutineController.js';
 import TaskController from '../controllers/TaskController.js';
+import AuthController from '../controllers/AuthController.js';
+import authMiddleware from '../middlewares/authMiddleware.js';
 
 const router = Router();
 
@@ -11,6 +13,15 @@ const router = Router();
 router.get('/health', (req, res) => {
     res.status(200).json({ status: 'ok', message: 'API Gerenciador de Rotinas operando normalmente.' });
 });
+
+// Authentication
+router.post('/auth/login', AuthController.login);
+router.put('/auth/password', authMiddleware, AuthController.changePassword);
+
+// Registration remains public.
+router.post('/users', UserController.create);
+
+router.use(authMiddleware);
 
 // HabitCategory
 router.post('/habit-categories', HabitCategoryController.create);
@@ -27,7 +38,6 @@ router.put('/habits/:id', HabitController.update);
 router.delete('/habits/:id', HabitController.delete);
 
 // User
-router.post('/users', UserController.create);
 router.get('/users', UserController.findAll);
 router.get('/users/:id', UserController.findById);
 router.put('/users/:id', UserController.update);
