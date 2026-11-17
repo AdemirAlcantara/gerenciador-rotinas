@@ -328,8 +328,7 @@ export default {
   margin-bottom: 16px;
 }
 
-.form-actions,
-.actions-cell {
+.form-actions {
   display: flex;
   gap: 8px;
   align-items: center;
@@ -376,6 +375,15 @@ button:disabled {
   border-bottom: 1px solid #e2e8f0;
   padding: 12px 10px;
   text-align: left;
+}
+
+.habit-table .actions-cell {
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.habit-table .actions-cell button + button {
+  margin-left: 8px;
 }
 
 .habit-table small {

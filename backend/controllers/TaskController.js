@@ -4,15 +4,34 @@ class TaskController {
 
     static async create(req, res) {
         try {
-            const { title, description, timeBlock, startTime, endTime, status, priority, routine, category, user } = req.body;
-            const newTask = new Task({
+            const {
                 title,
                 description,
+                dueDate,
                 timeBlock,
+                targetTime,
                 startTime,
                 endTime,
                 status,
                 priority,
+                notified,
+                notifiedAt,
+                routine,
+                category,
+                user
+            } = req.body;
+            const newTask = new Task({
+                title,
+                description,
+                dueDate,
+                timeBlock,
+                targetTime,
+                startTime,
+                endTime,
+                status,
+                priority,
+                notified,
+                notifiedAt,
                 routine,
                 category,
                 user

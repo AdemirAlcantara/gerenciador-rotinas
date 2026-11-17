@@ -138,13 +138,30 @@ class Task {
             .populate('user', '-password');
     }
 
-    static async update(id, { title, description, dueDate, timeBlock, targetTime, startTime, endTime, status, priority, notified, routine, category, user }) {
+    static async update(id, { title, description, dueDate, timeBlock, targetTime, startTime, endTime, status, priority, notified, notifiedAt, routine, category, user }) {
         if (!mongoose.Types.ObjectId.isValid(id)) {
             return null;
         }
+        const resolvedTargetTime = targetTime || startTime || null;
+        const resolvedStartTime = startTime || targetTime || null;
         return await TaskModel.findByIdAndUpdate(
             id,
-            { title, description, dueDate, timeBlock, targetTime, startTime, endTime, status, priority, notified, routine, category, user },
+            {
+                title,
+                description,
+                dueDate,
+                timeBlock,
+                targetTime: resolvedTargetTime,
+                startTime: resolvedStartTime,
+                endTime,
+                status,
+                priority,
+                notified,
+                notifiedAt,
+                routine,
+                category,
+                user
+            },
             { new: true, runValidators: true }
         )
             .populate('routine')
