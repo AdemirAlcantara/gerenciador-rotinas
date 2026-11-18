@@ -192,7 +192,7 @@ export default {
 .account-card h1 { margin-top: 0; }
 .account-content { display: flex; flex-direction: column; gap: 24px; }
 .profile-details { display: flex; flex-direction: column; gap: 12px; }
-.detail-item { display: flex; flex-direction: column; gap: 4px; padding: 12px 14px; border: 1px solid #e2e8f0; border-radius: 6px; background: #f8fafc; }
+.detail-item { display: flex; flex-direction: column; gap: 4px; padding: 12px 14px; border: 1px solid #fed7aa; border-radius: 6px; background: #fffaf0; }
 .detail-item span { color: #64748b; font-size: 13px; }
 .detail-item strong { white-space: pre-wrap; overflow-wrap: anywhere; }
 .form-group { margin-bottom: 16px; }

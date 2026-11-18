@@ -162,13 +162,13 @@ export default {
   color: #fff;
   background:
     radial-gradient(circle at 82% 20%, rgba(255, 255, 255, 0.14), transparent 24%),
-    linear-gradient(135deg, #d97706 0%, #f97316 100%);
-  box-shadow: 0 16px 38px rgba(180, 83, 9, 0.16);
+    linear-gradient(135deg, #f97316 0%, #facc15 100%);
+  box-shadow: 0 16px 38px rgba(249, 115, 22, 0.18);
 }
 
 .eyebrow {
   margin: 0 0 7px;
-  color: #42b983;
+  color: #ea580c;
   font-size: 12px;
   font-weight: 800;
   letter-spacing: 1.2px;
@@ -293,10 +293,10 @@ export default {
   font-size: 18px;
 }
 
-.icon-purple { color: #7c3aed; background: #ede9fe; }
-.icon-green { color: #16845a; background: #dcfce7; }
-.icon-blue { color: #2563eb; background: #dbeafe; }
-.icon-orange { color: #c2410c; background: #ffedd5; }
+.icon-purple { color: #92400e; background: #fef3c7; }
+.icon-green { color: #c2410c; background: #ffedd5; }
+.icon-blue { color: #b45309; background: #fde68a; }
+.icon-orange { color: #9a3412; background: #ffedd5; }
 
 .quick-section {
   margin-top: 34px;

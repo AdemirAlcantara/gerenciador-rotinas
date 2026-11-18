@@ -419,14 +419,19 @@ button:disabled {
   padding-right: 16px;
 }
 
+.habit-table th:last-child {
+  text-align: right;
+}
+
 .habit-table .actions-cell {
-  display: flex;
-  justify-content: flex-end;
-  white-space: nowrap;
+  text-align: right;
   vertical-align: middle;
+  white-space: nowrap;
 }
 
 .habit-table .actions-cell button {
+  padding: 6px 12px;
+  border-radius: 4px;
   white-space: nowrap;
 }
 

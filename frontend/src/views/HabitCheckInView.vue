@@ -71,9 +71,14 @@
     <section class="check-in-list-section">
       <div class="section-header">
         <h2>Check-ins cadastrados</h2>
-        <button type="button" class="btn-primary" @click="openCreateForm">
-          Cadastrar Check-in
-        </button>
+        <div class="header-actions">
+          <button type="button" class="btn-history" @click="openHistory()">
+            Histórico
+          </button>
+          <button type="button" class="btn-primary" @click="openCreateForm">
+            Cadastrar Check-in
+          </button>
+        </div>
       </div>
       <p v-if="errorMessage" class="alert error">{{ errorMessage }}</p>
       <p v-if="successMessage" class="alert success">{{ successMessage }}</p>
@@ -99,6 +104,7 @@
             <td>{{ checkIn.status }}</td>
             <td>{{ checkIn.mood }}</td>
             <td class="actions-cell">
+              <button class="btn-history" @click="openHistory(checkIn.habit)">Histórico</button>
               <button class="btn-edit" @click="startEdit(checkIn)">Editar</button>
               <button class="btn-delete" @click="handleDelete(checkIn._id)">Excluir</button>
             </td>
@@ -106,6 +112,7 @@
         </tbody>
       </table>
     </section>
+
   </div>
 </template>
 
@@ -231,6 +238,13 @@ export default {
         this.errorMessage = error.response?.data?.error || 'Erro ao excluir check-in.';
       }
     },
+    openHistory(habit) {
+      const habitId = habit?._id || habit;
+      this.$router.push({
+        name: 'habit-check-in-history',
+        query: habitId ? { habit: habitId } : {}
+      });
+    },
     resetForm() {
       this.editingId = null;
       this.isFormOpen = false;
@@ -262,18 +276,25 @@ export default {
 .form-actions { display: flex; gap: 8px; align-items: center; }
 .section-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
 .section-header h2 { margin: 0; }
+.header-actions { display: flex; align-items: center; justify-content: flex-end; gap: 8px; }
 button { border: 0; border-radius: 6px; color: #fff; padding: 8px 14px; cursor: pointer; font-weight: 600; }
-.btn-primary { background: #42b983; } .btn-secondary { background: #94a3b8; } .btn-edit { background: #3b82f6; } .btn-delete { background: #ef4444; }
+.btn-primary { background: #42b983; } .btn-secondary { background: #94a3b8; } .btn-history { background: #94a3b8; } .btn-edit { background: #3b82f6; } .btn-delete { background: #ef4444; }
 button:disabled { opacity: .6; cursor: not-allowed; }
 .check-in-table { width: 100%; table-layout: fixed; border-collapse: collapse; margin-top: 12px; }
 .check-in-table th, .check-in-table td { border-bottom: 1px solid #e2e8f0; padding: 12px 10px; text-align: left; overflow-wrap: anywhere; word-break: break-word; }
-.check-in-table th:last-child, .check-in-table td:last-child { width: 160px; padding-right: 16px; }
-.check-in-table .actions-cell { display: flex; justify-content: flex-end; white-space: nowrap; vertical-align: middle; }
-.check-in-table .actions-cell button { white-space: nowrap; }
+.check-in-table th:last-child, .check-in-table td:last-child { width: 260px; padding-right: 16px; }
+.check-in-table th:last-child { text-align: right; }
+.check-in-table .actions-cell { text-align: right; vertical-align: middle; white-space: nowrap; }
+.check-in-table .actions-cell button { padding: 6px 12px; border-radius: 4px; white-space: nowrap; }
 .check-in-table .actions-cell button + button { margin-left: 8px; }
 .check-in-table small { display: block; color: #64748b; margin-top: 4px; }
 .alert { padding: 10px 12px; border-radius: 6px; margin-bottom: 14px; font-size: 14px; }
 .alert.error { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; } .alert.success { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
 .empty-state { color: #64748b; font-style: italic; }
-@media (max-width: 760px) { .check-in-table { display: block; overflow-x: auto; } }
+@media (max-width: 760px) {
+  .section-header { align-items: flex-start; flex-direction: column; }
+  .header-actions { width: 100%; }
+  .header-actions button { flex: 1; }
+  .check-in-table { display: block; overflow-x: auto; }
+}
 </style>

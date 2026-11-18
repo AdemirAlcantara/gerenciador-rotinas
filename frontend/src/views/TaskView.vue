@@ -265,8 +265,9 @@ button:disabled { opacity: .6; cursor: not-allowed; }
 .task-table { width: 100%; table-layout: fixed; border-collapse: collapse; margin-top: 12px; }
 .task-table th, .task-table td { border-bottom: 1px solid #e2e8f0; padding: 12px 10px; text-align: left; overflow-wrap: anywhere; word-break: break-word; }
 .task-table th:last-child, .task-table td:last-child { width: 160px; padding-right: 16px; }
-.task-table .actions-cell { display: flex; justify-content: flex-end; white-space: nowrap; vertical-align: middle; }
-.task-table .actions-cell button { white-space: nowrap; }
+.task-table th:last-child { text-align: right; }
+.task-table .actions-cell { text-align: right; vertical-align: middle; white-space: nowrap; }
+.task-table .actions-cell button { padding: 6px 12px; border-radius: 4px; white-space: nowrap; }
 .task-table .actions-cell button + button { margin-left: 8px; }
 .task-table small { display: block; color: #64748b; margin-top: 4px; }
 .alert { padding: 10px 12px; border-radius: 6px; margin-bottom: 14px; font-size: 14px; }

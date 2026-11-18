@@ -4,7 +4,7 @@
       <nav class="navbar" aria-label="Navegação principal">
         <router-link to="/" class="brand" aria-label="Ir para o início">
           <span class="brand-mark">R</span>
-          <span class="brand-name">Check-ins</span>
+          <span class="brand-name">MyRoutines</span>
         </router-link>
 
         <div class="nav-links">
@@ -213,8 +213,8 @@ td {
 }
 
 .nav-links a.router-link-active {
-  color: #16845a;
-  background: #edf8f3;
+  color: #c2410c;
+  background: #fff7ed;
 }
 
 .notification-link {
@@ -256,7 +256,7 @@ td {
   place-items: center;
   border-radius: 50%;
   color: #fff;
-  background: #1e293b;
+  background: linear-gradient(135deg, #facc15, #f97316);
   font-size: 12px;
   letter-spacing: 0.3px;
 }
@@ -273,9 +273,9 @@ td {
 }
 
 .logout-button:hover {
-  color: #dc2626;
-  border-color: #fecaca;
-  background: #fef2f2;
+  color: #c2410c;
+  border-color: #fdba74;
+  background: #fff7ed;
 }
 
 .app-content {

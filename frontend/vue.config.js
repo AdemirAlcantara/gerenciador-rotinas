@@ -5,7 +5,7 @@ module.exports = defineConfig({
     index: {
       entry: 'src/main.js',
       template: 'public/index.html',
-      title: 'Gerenciador de Check-ins'
+      title: 'MyRoutines'
     }
   }
 })

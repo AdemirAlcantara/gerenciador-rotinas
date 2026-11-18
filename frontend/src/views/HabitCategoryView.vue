@@ -294,15 +294,21 @@ export default {
 }
 
 .actions-cell {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 8px;
+  text-align: right;
+  vertical-align: middle;
   white-space: nowrap;
 }
 
 .actions-cell button {
   white-space: nowrap;
+}
+
+.category-table th:last-child {
+  text-align: right;
+}
+
+.actions-cell button + button {
+  margin-left: 8px;
 }
 
 .btn-edit {

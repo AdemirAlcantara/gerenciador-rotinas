@@ -64,14 +64,21 @@ class HabitCheckInController {
 
     static async findAll(req, res) {
         try {
-            const { date, status } = req.query;
-            let habitCheckIns = await HabitCheckIn.findLatestByUser(req.user.id);
+            const { date, status, habit, history } = req.query;
+            let habitCheckIns = history === 'true'
+                ? await HabitCheckIn.findByUser(req.user.id)
+                : await HabitCheckIn.findLatestByUser(req.user.id);
 
             if (date) {
                 habitCheckIns = habitCheckIns.filter((checkIn) => checkIn.dateString === date);
             }
             if (status) {
                 habitCheckIns = habitCheckIns.filter((checkIn) => checkIn.status === status);
+            }
+            if (habit) {
+                habitCheckIns = habitCheckIns.filter((checkIn) =>
+                    String(checkIn.habit?._id || checkIn.habit) === String(habit)
+                );
             }
 
             return res.status(200).json(habitCheckIns);

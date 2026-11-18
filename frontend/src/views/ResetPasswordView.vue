@@ -82,7 +82,7 @@ export default {
 .form-group { margin-bottom: 16px; }
 .form-group label { display: block; font-weight: 600; margin-bottom: 6px; }
 .form-group input { width: 100%; box-sizing: border-box; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; }
-.btn-primary { width: 100%; border: 0; border-radius: 6px; padding: 10px; color: #fff; background: #42b983; cursor: pointer; font-weight: 600; }
+.btn-primary { width: 100%; border: 0; border-radius: 6px; padding: 10px; color: #fff; background: linear-gradient(135deg, #facc15, #f97316); cursor: pointer; font-weight: 600; }
 .btn-primary:disabled { opacity: .6; cursor: not-allowed; }
 .alert { padding: 10px 12px; border-radius: 6px; margin-bottom: 14px; font-size: 14px; }
 .alert.error { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }

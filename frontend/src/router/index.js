@@ -5,6 +5,7 @@ import HabitView from '../views/HabitView.vue'
 import AboutView from '../views/AboutView.vue'
 import TaskView from '../views/TaskView.vue'
 import HabitCheckInView from '../views/HabitCheckInView.vue'
+import HabitCheckInHistoryView from '../views/HabitCheckInHistoryView.vue'
 import LoginView from '../views/LoginView.vue'
 import AccountView from '../views/AccountView.vue'
 import RegisterView from '../views/RegisterView.vue'
@@ -73,6 +74,12 @@ const routes = [
     path: '/habit-check-ins',
     name: 'habit-check-ins',
     component: HabitCheckInView,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/habit-check-ins/history',
+    name: 'habit-check-in-history',
+    component: HabitCheckInHistoryView,
     meta: { requiresAuth: true }
   },
   {

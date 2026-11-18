@@ -2,7 +2,7 @@
   <main class="auth-page">
     <form class="auth-card" @submit.prevent="handleLogin">
       <h1>Entrar</h1>
-      <p class="subtitle">Acesse o Gerenciador de Check-ins</p>
+      <p class="subtitle">Acesse o MyRoutines</p>
 
       <div class="form-group">
         <label for="email">E-mail</label>
@@ -70,12 +70,12 @@ export default {
 .form-group { margin-bottom: 16px; }
 .form-group label { display: block; font-weight: 600; margin-bottom: 6px; }
 .form-group input { width: 100%; box-sizing: border-box; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; }
-.btn-primary { width: 100%; border: 0; border-radius: 6px; padding: 10px; color: #fff; background: #42b983; cursor: pointer; font-weight: 600; }
+.btn-primary { width: 100%; border: 0; border-radius: 6px; padding: 10px; color: #fff; background: linear-gradient(135deg, #facc15, #f97316); cursor: pointer; font-weight: 600; }
 .btn-primary:disabled { opacity: .6; cursor: not-allowed; }
 .alert { padding: 10px 12px; border-radius: 6px; margin-bottom: 14px; font-size: 14px; }
 .alert.error { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
 .register-link { margin: 18px 0 0; text-align: center; color: #64748b; font-size: 14px; }
-.register-link a { color: #42b983; font-weight: 600; }
+.register-link a { color: #c2410c; font-weight: 600; }
 .forgot-link { margin: 14px 0 0; text-align: center; font-size: 14px; }
 .forgot-link a { color: #64748b; font-weight: 600; }
 </style>
