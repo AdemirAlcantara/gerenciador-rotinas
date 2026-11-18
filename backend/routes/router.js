@@ -24,6 +24,10 @@ router.post('/users', UserController.create);
 
 router.use(authMiddleware);
 
+// Current user
+router.get('/users/me', UserController.findCurrent);
+router.put('/users/me', UserController.updateCurrent);
+
 // HabitCategory
 router.post('/habit-categories', HabitCategoryController.create);
 router.get('/habit-categories', HabitCategoryController.findAll);

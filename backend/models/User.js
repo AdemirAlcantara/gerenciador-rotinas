@@ -56,7 +56,12 @@ class User {
             return null;
         }
 
-        const updateData = { name, email, bio, productivityGoals, preferences };
+        const updateData = {};
+        if (name !== undefined) updateData.name = name;
+        if (email !== undefined) updateData.email = email;
+        if (bio !== undefined) updateData.bio = bio;
+        if (productivityGoals !== undefined) updateData.productivityGoals = productivityGoals;
+        if (preferences !== undefined) updateData.preferences = preferences;
         if (password !== undefined) {
             updateData.password = password;
         }
