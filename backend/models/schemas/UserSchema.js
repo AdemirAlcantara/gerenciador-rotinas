@@ -19,6 +19,8 @@ const UserSchema = new mongoose.Schema(
             match: [/^\d{4}-\d{2}-\d{2}$/, 'Formato de data inválido (esperado YYYY-MM-DD)']
         },
         bio: { type: String, required: false, default: '' },
+        passwordResetCodeHash: { type: String, required: false, select: false },
+        passwordResetExpires: { type: Date, required: false, select: false },
         productivityGoals: {
             dailyHabitsTarget: { type: Number, default: 3, min: 0 },
             dailyTasksTarget: { type: Number, default: 5, min: 0 },

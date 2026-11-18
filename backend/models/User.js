@@ -87,6 +87,35 @@ class User {
         return await UserModel.findByIdAndUpdate(id, { password }, { new: true }).select('-password');
     }
 
+    static async setPasswordResetCode(id, codeHash, expires) {
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return null;
+        }
+        return await UserModel.findByIdAndUpdate(
+            id,
+            { passwordResetCodeHash: codeHash, passwordResetExpires: expires },
+            { new: true }
+        ).select('-password');
+    }
+
+    static async findByPasswordResetCode(codeHash) {
+        return await UserModel.findOne({
+            passwordResetCodeHash: codeHash,
+            passwordResetExpires: { $gt: new Date() }
+        }).select('+passwordResetCodeHash +passwordResetExpires');
+    }
+
+    static async clearPasswordResetCode(id) {
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return null;
+        }
+        return await UserModel.findByIdAndUpdate(
+            id,
+            { passwordResetCodeHash: null, passwordResetExpires: null },
+            { new: true }
+        ).select('-password');
+    }
+
     static async updateLastHabitCheckInGeneratedDate(id, dateString) {
         if (!mongoose.Types.ObjectId.isValid(id)) {
             return null;

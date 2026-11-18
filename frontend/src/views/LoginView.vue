@@ -18,6 +18,9 @@
       <button type="submit" class="btn-primary" :disabled="loading">
         {{ loading ? 'Entrando...' : 'Entrar' }}
       </button>
+      <p class="forgot-link">
+        <router-link :to="{ name: 'forgot-password' }">Esqueci minha senha</router-link>
+      </p>
       <p class="register-link">
         Ainda não tem uma conta?
         <router-link :to="{ name: 'register' }">Registre-se agora</router-link>
@@ -73,4 +76,6 @@ export default {
 .alert.error { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
 .register-link { margin: 18px 0 0; text-align: center; color: #64748b; font-size: 14px; }
 .register-link a { color: #42b983; font-weight: 600; }
+.forgot-link { margin: 14px 0 0; text-align: center; font-size: 14px; }
+.forgot-link a { color: #64748b; font-weight: 600; }
 </style>

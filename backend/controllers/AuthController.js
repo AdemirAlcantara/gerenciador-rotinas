@@ -4,6 +4,7 @@ import User from '../models/User.js';
 import HabitCheckIn from '../models/HabitCheckIn.js';
 import { formatDateString } from '../utils/utils.js';
 import Notification from '../models/Notification.js';
+import crypto from 'crypto';
 
 const getJwtSecret = () => {
     if (!process.env.JWT_SECRET) {
@@ -15,6 +16,55 @@ const getJwtSecret = () => {
 const isBcryptHash = (value) => typeof value === 'string' && value.startsWith('$2');
 
 class AuthController {
+
+    static async forgotPassword(req, res) {
+        try {
+            const email = req.body.email?.toLowerCase()?.trim();
+            if (!email) {
+                return res.status(400).json({ error: 'O e-mail é obrigatório' });
+            }
+
+            const user = await User.findByEmail(email);
+            if (user) {
+                const code = crypto.randomInt(100000, 1000000).toString();
+                const codeHash = crypto.createHash('sha256').update(code).digest('hex');
+                const expires = new Date(Date.now() + 10 * 60 * 1000);
+                await User.setPasswordResetCode(user._id, codeHash, expires);
+
+                return res.status(200).json({
+                    message: 'Código de verificação gerado.',
+                    simulatedCode: code
+                });
+            }
+
+            return res.status(200).json({
+                message: 'Se o e-mail estiver cadastrado, um código será exibido para redefinição.'
+            });
+        } catch (error) {
+            return res.status(500).json({ error: 'Não foi possível iniciar a recuperação de senha.' });
+        }
+    }
+
+    static async resetPassword(req, res) {
+        try {
+            const { code, newPassword } = req.body;
+            if (!code || !newPassword) {
+                return res.status(400).json({ error: 'Código e nova senha são obrigatórios' });
+            }
+            const codeHash = crypto.createHash('sha256').update(code).digest('hex');
+            const user = await User.findByPasswordResetCode(codeHash);
+            if (!user) {
+                return res.status(400).json({ error: 'Código inválido ou expirado' });
+            }
+
+            const passwordHash = await bcrypt.hash(newPassword, 12);
+            await User.updatePassword(user._id, passwordHash);
+            await User.clearPasswordResetCode(user._id);
+            return res.status(200).json({ message: 'Senha redefinida com sucesso' });
+        } catch (error) {
+            return res.status(400).json({ error: error.message });
+        }
+    }
 
     static async login(req, res) {
         try {
