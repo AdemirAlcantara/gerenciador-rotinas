@@ -4,7 +4,7 @@ import HabitCategoryView from '../views/HabitCategoryView.vue'
 import HabitView from '../views/HabitView.vue'
 import AboutView from '../views/AboutView.vue'
 import TaskView from '../views/TaskView.vue'
-import RoutineView from '../views/RoutineView.vue'
+import HabitCheckInView from '../views/HabitCheckInView.vue'
 import LoginView from '../views/LoginView.vue'
 import AccountView from '../views/AccountView.vue'
 import RegisterView from '../views/RegisterView.vue'
@@ -51,9 +51,9 @@ const routes = [
     meta: { requiresAuth: true }
   },
   {
-    path: '/routines',
-    name: 'routines',
-    component: RoutineView,
+    path: '/habit-check-ins',
+    name: 'habit-check-ins',
+    component: HabitCheckInView,
     meta: { requiresAuth: true }
   },
   {

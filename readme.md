@@ -1,5 +1,5 @@
 
-# Sistema Gerenciador de Rotinas
+# Sistema Gerenciador de Check-ins
 
 ## Integrantes
 

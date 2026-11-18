@@ -2,7 +2,7 @@ import { Router } from 'express';
 import HabitCategoryController from '../controllers/HabitCategoryController.js';
 import HabitController from '../controllers/HabitController.js';
 import UserController from '../controllers/UserController.js';
-import RoutineController from '../controllers/RoutineController.js';
+import HabitCheckInController from '../controllers/HabitCheckInController.js';
 import TaskController from '../controllers/TaskController.js';
 import AuthController from '../controllers/AuthController.js';
 import authMiddleware from '../middlewares/authMiddleware.js';
@@ -11,7 +11,7 @@ const router = Router();
 
 // Rota de verificação de status da API
 router.get('/health', (req, res) => {
-    res.status(200).json({ status: 'ok', message: 'API Gerenciador de Rotinas operando normalmente.' });
+    res.status(200).json({ status: 'ok', message: 'API Gerenciador de Check-ins operando normalmente.' });
 });
 
 // Authentication
@@ -37,12 +37,12 @@ router.get('/habits/:id', HabitController.findById);
 router.put('/habits/:id', HabitController.update);
 router.delete('/habits/:id', HabitController.delete);
 
-// Routine
-router.post('/routines', RoutineController.create);
-router.get('/routines', RoutineController.findAll);
-router.get('/routines/:id', RoutineController.findById);
-router.put('/routines/:id', RoutineController.update);
-router.delete('/routines/:id', RoutineController.delete);
+// Habit check-ins
+router.post('/habit-check-ins', HabitCheckInController.create);
+router.get('/habit-check-ins', HabitCheckInController.findAll);
+router.get('/habit-check-ins/:id', HabitCheckInController.findById);
+router.put('/habit-check-ins/:id', HabitCheckInController.update);
+router.delete('/habit-check-ins/:id', HabitCheckInController.delete);
 
 // Task
 router.post('/tasks', TaskController.create);

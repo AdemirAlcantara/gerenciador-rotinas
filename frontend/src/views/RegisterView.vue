@@ -2,7 +2,7 @@
   <main class="auth-page">
     <form class="auth-card" @submit.prevent="handleRegister">
       <h1>Criar conta</h1>
-      <p class="subtitle">Comece a organizar suas rotinas</p>
+      <p class="subtitle">Comece a organizar seus hábitos e check-ins</p>
 
       <div class="form-group">
         <label for="name">Nome</label>

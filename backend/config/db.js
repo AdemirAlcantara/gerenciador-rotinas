@@ -23,11 +23,22 @@ class Database {
                 serverSelectionTimeoutMS: 5000
             });
 
-            // Garante que o banco rotinas_db seja materializado imediatamente no MongoDB (visível no Compass / show dbs)
             const collections = await conn.connection.db.listCollections().toArray();
             if (collections.length === 0) {
                 await conn.connection.db.createCollection('habitcategories');
             }
+
+            const collectionNames = collections.map((collection) => collection.name);
+            if (collectionNames.includes('routines') && !collectionNames.includes('habitcheckins')) {
+                await conn.connection.db.collection('routines').rename('habitcheckins');
+            }
+            await conn.connection.db.collection('tasks').updateMany(
+                { routine: { $exists: true } },
+                [
+                    { $set: { habitCheckIn: '$routine' } },
+                    { $unset: 'routine' }
+                ]
+            );
 
             await HabitCategoryModel.syncIndexes();
 

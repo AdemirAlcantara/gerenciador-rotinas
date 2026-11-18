@@ -1,9 +1,9 @@
 import mongoose from 'mongoose';
-import RoutineModel from './schemas/RoutineSchema.js';
+import HabitCheckInModel from './schemas/HabitCheckInSchema.js';
 import Habit from './Habit.js';
 import { formatDateString, formatTimeHHmm } from '../utils/utils.js';
 
-class Routine {
+class HabitCheckIn {
 
     constructor({ date, dateString, habit, user, category, status, completedAt, mood, energyLevel, notes }) {
         const resolvedDate = date ? new Date(date) : new Date();
@@ -20,7 +20,7 @@ class Routine {
     }
 
     async save() {
-        const newRoutine = new RoutineModel({
+        const newHabitCheckIn = new HabitCheckInModel({
             date: this.date,
             dateString: this.dateString,
             habit: this.habit,
@@ -33,11 +33,11 @@ class Routine {
             notes: this.notes
         });
 
-        return await newRoutine.save();
+        return await newHabitCheckIn.save();
     }
 
     static async findAll() {
-        return await RoutineModel.find()
+        return await HabitCheckInModel.find()
             .populate({ path: 'habit', populate: { path: 'category' } })
             .populate('category')
             .populate('user', '-password')
@@ -48,7 +48,7 @@ class Routine {
         if (!mongoose.Types.ObjectId.isValid(id)) {
             return null;
         }
-        return await RoutineModel.findById(id)
+        return await HabitCheckInModel.findById(id)
             .populate({ path: 'habit', populate: { path: 'category' } })
             .populate('category')
             .populate('user', '-password');
@@ -64,7 +64,7 @@ class Routine {
             query.user = userId;
         }
 
-        return await RoutineModel.find(query)
+        return await HabitCheckInModel.find(query)
             .populate({ path: 'habit', populate: { path: 'category' } })
             .populate('category')
             .populate('user', '-password')
@@ -75,7 +75,7 @@ class Routine {
         if (!mongoose.Types.ObjectId.isValid(userId)) {
             return [];
         }
-        return await RoutineModel.find({ user: userId })
+        return await HabitCheckInModel.find({ user: userId })
             .populate({ path: 'habit', populate: { path: 'category' } })
             .populate('category')
             .populate('user', '-password')
@@ -87,7 +87,7 @@ class Routine {
         if (userId && mongoose.Types.ObjectId.isValid(userId)) {
             query.user = userId;
         }
-        return await RoutineModel.find(query)
+        return await HabitCheckInModel.find(query)
             .populate({ path: 'habit', populate: { path: 'category' } })
             .populate('category')
             .populate('user', '-password')
@@ -103,7 +103,7 @@ class Routine {
             ? formatTimeHHmm(new Date())
             : completedAt;
 
-        return await RoutineModel.findByIdAndUpdate(
+        return await HabitCheckInModel.findByIdAndUpdate(
             id,
             {
                 date,
@@ -128,12 +128,12 @@ class Routine {
         if (!mongoose.Types.ObjectId.isValid(id)) {
             return null;
         }
-        return await RoutineModel.findByIdAndDelete(id);
+        return await HabitCheckInModel.findByIdAndDelete(id);
     }
 
     /**
      * Lógica Central 1: Geração Automática do Dia
-     * Instancia a Routine com base nos hábitos ativos configurados para aquele dia da semana/mês.
+     * Instancia os check-ins com base nos hábitos ativos configurados para aquele dia da semana/mês.
      */
     static async generateDailyForUser(userId = null, targetDate = new Date()) {
         const dateObj = targetDate instanceof Date ? targetDate : new Date(targetDate);
@@ -141,7 +141,7 @@ class Routine {
 
         const activeHabits = await Habit.findActiveForDate(userId, dateObj);
         if (!activeHabits.length) {
-            return { dateString, createdCount: 0, routines: [] };
+            return { dateString, createdCount: 0, habitCheckIns: [] };
         }
 
         const operations = activeHabits.map((h) => {
@@ -173,14 +173,14 @@ class Routine {
             };
         });
 
-        const bulkResult = await RoutineModel.bulkWrite(operations, { ordered: false });
-        const routines = await Routine.findByDate(dateString, userId);
+        const bulkResult = await HabitCheckInModel.bulkWrite(operations, { ordered: false });
+        const habitCheckIns = await HabitCheckIn.findByDate(dateString, userId);
 
         return {
             dateString,
             createdCount: bulkResult.upsertedCount || 0,
-            totalForDay: routines.length,
-            routines
+            totalForDay: habitCheckIns.length,
+            habitCheckIns
         };
     }
 
@@ -194,11 +194,11 @@ class Routine {
             query.user = userId;
         }
 
-        const allRoutines = await RoutineModel.find(query)
+        const allHabitCheckIns = await HabitCheckInModel.find(query)
             .populate({ path: 'habit', populate: { path: 'category' } })
             .sort({ dateString: -1 });
 
-        return Routine.computeConsistencyFromRecords(allRoutines, referenceDate);
+        return HabitCheckIn.computeConsistencyFromRecords(allHabitCheckIns, referenceDate);
     }
 
     static computeConsistencyFromRecords(records, referenceDate = new Date()) {
@@ -311,4 +311,4 @@ class Routine {
 
 }
 
-export default Routine;
+export default HabitCheckIn;

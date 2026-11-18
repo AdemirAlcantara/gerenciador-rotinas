@@ -2,7 +2,7 @@
   <main class="auth-page">
     <form class="auth-card" @submit.prevent="handleLogin">
       <h1>Entrar</h1>
-      <p class="subtitle">Acesse o Gerenciador de Rotinas</p>
+      <p class="subtitle">Acesse o Gerenciador de Check-ins</p>
 
       <div class="form-group">
         <label for="email">E-mail</label>

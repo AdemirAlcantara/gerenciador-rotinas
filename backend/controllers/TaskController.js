@@ -1,5 +1,5 @@
 import Task from '../models/Task.js';
-import Routine from '../models/Routine.js';
+import HabitCheckIn from '../models/HabitCheckIn.js';
 import HabitCategory from '../models/HabitCategory.js';
 
 class TaskController {
@@ -18,13 +18,13 @@ class TaskController {
                 priority,
                 notified,
                 notifiedAt,
-                routine,
+                habitCheckIn,
                 category
             } = req.body;
-            if (routine) {
-                const ownedRoutine = await Routine.findById(routine);
-                if (!ownedRoutine || (ownedRoutine.user?._id || ownedRoutine.user)?.toString() !== req.user.id) {
-                    return res.status(400).json({ error: 'Rotina inválida para o usuário atual' });
+            if (habitCheckIn) {
+                const ownedHabitCheckIn = await HabitCheckIn.findById(habitCheckIn);
+                if (!ownedHabitCheckIn || (ownedHabitCheckIn.user?._id || ownedHabitCheckIn.user)?.toString() !== req.user.id) {
+                    return res.status(400).json({ error: 'Check-in inválido para o usuário atual' });
                 }
             }
             if (category) {
@@ -45,7 +45,7 @@ class TaskController {
                 priority,
                 notified,
                 notifiedAt,
-                routine,
+                habitCheckIn,
                 category,
                 user: req.user.id
             });
@@ -58,12 +58,12 @@ class TaskController {
 
     static async findAll(req, res) {
         try {
-            const { routine, timeBlock, status } = req.query;
+            const { habitCheckIn, timeBlock, status } = req.query;
             let tasks = await Task.findByUser(req.user.id);
 
-            if (routine) {
+            if (habitCheckIn) {
                 tasks = tasks.filter((task) =>
-                    (task.routine?._id || task.routine)?.toString() === routine
+                    (task.habitCheckIn?._id || task.habitCheckIn)?.toString() === habitCheckIn
                 );
             }
             if (timeBlock) {
@@ -103,10 +103,10 @@ class TaskController {
             if ((existing.user?._id || existing.user)?.toString() !== req.user.id) {
                 return res.status(403).json({ error: 'Acesso negado a esta tarefa' });
             }
-            if (req.body.routine) {
-                const ownedRoutine = await Routine.findById(req.body.routine);
-                if (!ownedRoutine || (ownedRoutine.user?._id || ownedRoutine.user)?.toString() !== req.user.id) {
-                    return res.status(400).json({ error: 'Rotina inválida para o usuário atual' });
+            if (req.body.habitCheckIn) {
+                const ownedHabitCheckIn = await HabitCheckIn.findById(req.body.habitCheckIn);
+                if (!ownedHabitCheckIn || (ownedHabitCheckIn.user?._id || ownedHabitCheckIn.user)?.toString() !== req.user.id) {
+                    return res.status(400).json({ error: 'Check-in inválido para o usuário atual' });
                 }
             }
             if (req.body.category) {

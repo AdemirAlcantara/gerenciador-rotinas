@@ -1,9 +1,9 @@
 <template>
-  <div class="routine-page">
-    <h1>Rotinas</h1>
+  <div class="check-in-page">
+    <h1>Check-ins de Hábitos</h1>
 
-    <form class="routine-form" @submit.prevent="handleSubmit">
-      <h2>{{ editingId ? 'Editar Rotina' : 'Nova Rotina' }}</h2>
+    <form class="check-in-form" @submit.prevent="handleSubmit">
+      <h2>{{ editingId ? 'Editar Check-in' : 'Novo Check-in' }}</h2>
 
       <div class="form-grid">
         <div class="form-group">
@@ -86,11 +86,11 @@
       </div>
     </form>
 
-    <section class="routine-list-section">
-      <h2>Rotinas cadastradas</h2>
-      <p v-if="loadingList">Carregando rotinas...</p>
-      <p v-else-if="routines.length === 0" class="empty-state">Nenhuma rotina cadastrada ainda.</p>
-      <table v-else class="routine-table">
+    <section class="check-in-list-section">
+      <h2>Check-ins cadastrados</h2>
+      <p v-if="loadingList">Carregando check-ins...</p>
+      <p v-else-if="habitCheckIns.length === 0" class="empty-state">Nenhum check-in cadastrado ainda.</p>
+      <table v-else class="check-in-table">
         <thead>
           <tr>
             <th>Data</th>
@@ -102,18 +102,18 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="routine in routines" :key="routine._id">
-            <td>{{ routine.dateString }}</td>
+          <tr v-for="checkIn in habitCheckIns" :key="checkIn._id">
+            <td>{{ checkIn.dateString }}</td>
             <td>
-              <strong>{{ routine.habit?.habit || '—' }}</strong>
-              <small v-if="routine.notes">{{ routine.notes }}</small>
+              <strong>{{ checkIn.habit?.habit || '—' }}</strong>
+              <small v-if="checkIn.notes">{{ checkIn.notes }}</small>
             </td>
-            <td>{{ routine.status }}</td>
-            <td>{{ routine.mood }}</td>
-            <td>{{ routine.energyLevel }}</td>
+            <td>{{ checkIn.status }}</td>
+            <td>{{ checkIn.mood }}</td>
+            <td>{{ checkIn.energyLevel }}</td>
             <td class="actions-cell">
-              <button class="btn-edit" @click="startEdit(routine)">Editar</button>
-              <button class="btn-delete" @click="handleDelete(routine._id)">Excluir</button>
+              <button class="btn-edit" @click="startEdit(checkIn)">Editar</button>
+              <button class="btn-delete" @click="handleDelete(checkIn._id)">Excluir</button>
             </td>
           </tr>
         </tbody>
@@ -138,10 +138,10 @@ const emptyForm = () => ({
 });
 
 export default {
-  name: 'RoutineView',
+  name: 'HabitCheckInView',
   data() {
     return {
-      routines: [],
+      habitCheckIns: [],
       habits: [],
       categories: [],
       form: emptyForm(),
@@ -154,7 +154,7 @@ export default {
     };
   },
   mounted() {
-    this.fetchRoutines();
+    this.fetchHabitCheckIns();
     this.fetchOptions();
   },
   methods: {
@@ -168,18 +168,18 @@ export default {
         this.habits = habits.data;
         this.categories = categories.data;
       } catch (error) {
-        this.errorMessage = error.response?.data?.error || 'Não foi possível carregar as opções da rotina.';
+        this.errorMessage = error.response?.data?.error || 'Não foi possível carregar as opções do check-in.';
       } finally {
         this.loadingOptions = false;
       }
     },
-    async fetchRoutines() {
+    async fetchHabitCheckIns() {
       this.loadingList = true;
       try {
-        const response = await axiosInstance.get('/routines');
-        this.routines = response.data;
+        const response = await axiosInstance.get('/habit-check-ins');
+        this.habitCheckIns = response.data;
       } catch (error) {
-        this.errorMessage = error.response?.data?.error || 'Não foi possível carregar as rotinas.';
+        this.errorMessage = error.response?.data?.error || 'Não foi possível carregar os check-ins.';
       } finally {
         this.loadingList = false;
       }
@@ -198,45 +198,45 @@ export default {
 
       try {
         if (this.editingId) {
-          await axiosInstance.put(`/routines/${this.editingId}`, payload);
-          this.successMessage = 'Rotina atualizada com sucesso!';
+          await axiosInstance.put(`/habit-check-ins/${this.editingId}`, payload);
+          this.successMessage = 'Check-in atualizado com sucesso!';
         } else {
-          await axiosInstance.post('/routines', payload);
-          this.successMessage = 'Rotina cadastrada com sucesso!';
+          await axiosInstance.post('/habit-check-ins', payload);
+          this.successMessage = 'Check-in cadastrado com sucesso!';
         }
         this.resetForm();
-        await this.fetchRoutines();
+        await this.fetchHabitCheckIns();
       } catch (error) {
-        this.errorMessage = error.response?.data?.error || 'Erro ao salvar rotina.';
+        this.errorMessage = error.response?.data?.error || 'Erro ao salvar check-in.';
       } finally {
         this.loading = false;
       }
     },
-    startEdit(routine) {
-      this.editingId = routine._id;
+    startEdit(checkIn) {
+      this.editingId = checkIn._id;
       this.form = {
-        date: routine.dateString || today(),
-        habit: routine.habit?._id || routine.habit || '',
-        category: routine.category?._id || routine.category || '',
-        status: routine.status || 'Pendente',
-        completedAt: routine.completedAt || '',
-        mood: routine.mood || 'Neutro',
-        energyLevel: routine.energyLevel || 'Média',
-        notes: routine.notes || ''
+        date: checkIn.dateString || today(),
+        habit: checkIn.habit?._id || checkIn.habit || '',
+        category: checkIn.category?._id || checkIn.category || '',
+        status: checkIn.status || 'Pendente',
+        completedAt: checkIn.completedAt || '',
+        mood: checkIn.mood || 'Neutro',
+        energyLevel: checkIn.energyLevel || 'Média',
+        notes: checkIn.notes || ''
       };
       this.errorMessage = '';
       this.successMessage = '';
     },
     async handleDelete(id) {
-      if (!window.confirm('Deseja realmente excluir esta rotina?')) return;
+      if (!window.confirm('Deseja realmente excluir este check-in?')) return;
       this.errorMessage = '';
       this.successMessage = '';
       try {
-        await axiosInstance.delete(`/routines/${id}`);
-        this.successMessage = 'Rotina removida com sucesso!';
-        await this.fetchRoutines();
+        await axiosInstance.delete(`/habit-check-ins/${id}`);
+        this.successMessage = 'Check-in removido com sucesso!';
+        await this.fetchHabitCheckIns();
       } catch (error) {
-        this.errorMessage = error.response?.data?.error || 'Erro ao excluir rotina.';
+        this.errorMessage = error.response?.data?.error || 'Erro ao excluir check-in.';
       }
     },
     resetForm() {
@@ -248,8 +248,8 @@ export default {
 </script>
 
 <style scoped>
-.routine-page { max-width: 1100px; margin: 0 auto; padding: 20px; text-align: left; }
-.routine-form, .routine-list-section { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin-bottom: 24px; box-shadow: 0 2px 6px rgba(0, 0, 0, .04); }
+.check-in-page { max-width: 1100px; margin: 0 auto; padding: 20px; text-align: left; }
+.check-in-form, .check-in-list-section { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; margin-bottom: 24px; box-shadow: 0 2px 6px rgba(0, 0, 0, .04); }
 .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; }
 .form-group { margin-bottom: 16px; }
 .form-group label { display: block; font-weight: 600; margin-bottom: 6px; }
@@ -258,14 +258,14 @@ export default {
 button { border: 0; border-radius: 6px; color: #fff; padding: 8px 14px; cursor: pointer; font-weight: 600; }
 .btn-primary { background: #42b983; } .btn-secondary { background: #94a3b8; } .btn-edit { background: #3b82f6; } .btn-delete { background: #ef4444; }
 button:disabled { opacity: .6; cursor: not-allowed; }
-.routine-table { width: 100%; table-layout: fixed; border-collapse: collapse; margin-top: 12px; }
-.routine-table th, .routine-table td { border-bottom: 1px solid #e2e8f0; padding: 12px 10px; text-align: left; overflow-wrap: anywhere; word-break: break-word; }
-.routine-table th:last-child, .routine-table td:last-child { width: 140px; }
-.routine-table .actions-cell { white-space: nowrap; vertical-align: middle; }
-.routine-table .actions-cell button + button { margin-left: 8px; }
-.routine-table small { display: block; color: #64748b; margin-top: 4px; }
+.check-in-table { width: 100%; table-layout: fixed; border-collapse: collapse; margin-top: 12px; }
+.check-in-table th, .check-in-table td { border-bottom: 1px solid #e2e8f0; padding: 12px 10px; text-align: left; overflow-wrap: anywhere; word-break: break-word; }
+.check-in-table th:last-child, .check-in-table td:last-child { width: 140px; }
+.check-in-table .actions-cell { white-space: nowrap; vertical-align: middle; }
+.check-in-table .actions-cell button + button { margin-left: 8px; }
+.check-in-table small { display: block; color: #64748b; margin-top: 4px; }
 .alert { padding: 10px 12px; border-radius: 6px; margin-bottom: 14px; font-size: 14px; }
 .alert.error { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; } .alert.success { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
 .empty-state { color: #64748b; font-style: italic; }
-@media (max-width: 760px) { .routine-table { display: block; overflow-x: auto; } }
+@media (max-width: 760px) { .check-in-table { display: block; overflow-x: auto; } }
 </style>

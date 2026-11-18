@@ -70,11 +70,11 @@
 
       <div class="form-grid">
         <div class="form-group">
-          <label for="routine">Rotina</label>
-          <select id="routine" v-model="form.routine">
+          <label for="habitCheckIn">Check-in</label>
+          <select id="habitCheckIn" v-model="form.habitCheckIn">
             <option value="">Nenhuma</option>
-            <option v-for="routine in routines" :key="routine._id" :value="routine._id">
-              {{ routineLabel(routine) }}
+            <option v-for="checkIn in habitCheckIns" :key="checkIn._id" :value="checkIn._id">
+              {{ habitCheckInLabel(checkIn) }}
             </option>
           </select>
         </div>
@@ -156,7 +156,7 @@ const emptyForm = () => ({
   endTime: '',
   status: 'Pendente',
   priority: 'Média',
-  routine: '',
+  habitCheckIn: '',
   category: ''
 });
 
@@ -165,7 +165,7 @@ export default {
   data() {
     return {
       tasks: [],
-      routines: [],
+      habitCheckIns: [],
       categories: [],
       form: emptyForm(),
       editingId: null,
@@ -184,11 +184,11 @@ export default {
     async fetchOptions() {
       this.loadingOptions = true;
       try {
-        const [routines, categories] = await Promise.all([
-          axiosInstance.get('/routines'),
+        const [habitCheckIns, categories] = await Promise.all([
+          axiosInstance.get('/habit-check-ins'),
           axiosInstance.get('/habit-categories')
         ]);
-        this.routines = routines.data;
+        this.habitCheckIns = habitCheckIns.data;
         this.categories = categories.data;
       } catch (error) {
         this.errorMessage = error.response?.data?.error || 'Não foi possível carregar as opções da tarefa.';
@@ -216,7 +216,7 @@ export default {
         targetTime: this.form.targetTime || null,
         startTime: this.form.startTime || null,
         endTime: this.form.endTime || null,
-        routine: this.form.routine || null,
+        habitCheckIn: this.form.habitCheckIn || null,
         category: this.form.category || null
       };
 
@@ -248,7 +248,7 @@ export default {
         endTime: task.endTime || '',
         status: task.status || 'Pendente',
         priority: task.priority || 'Média',
-        routine: task.routine?._id || task.routine || '',
+        habitCheckIn: task.habitCheckIn?._id || task.habitCheckIn || '',
         category: task.category?._id || task.category || ''
       };
       this.errorMessage = '';
@@ -270,8 +270,8 @@ export default {
       this.editingId = null;
       this.form = emptyForm();
     },
-    routineLabel(routine) {
-      return `${routine.habit?.habit || 'Rotina'} - ${routine.dateString || ''}`;
+    habitCheckInLabel(checkIn) {
+      return `${checkIn.habit?.habit || 'Check-in'} - ${checkIn.dateString || ''}`;
     },
     timeBlockLabel(timeBlock) {
       return { Manha: 'Manhã', Tarde: 'Tarde', Noite: 'Noite', Qualquer: 'Qualquer' }[timeBlock] || timeBlock;

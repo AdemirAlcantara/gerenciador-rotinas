@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import { formatDateString, formatTimeHHmm } from '../../utils/utils.js';
 
-const RoutineSchema = new mongoose.Schema(
+const HabitCheckInSchema = new mongoose.Schema(
     {
         date: {
             type: Date,
@@ -64,9 +64,9 @@ const RoutineSchema = new mongoose.Schema(
     }
 );
 
-RoutineSchema.index({ user: 1, habit: 1, dateString: 1 }, { unique: true });
+HabitCheckInSchema.index({ user: 1, habit: 1, dateString: 1 }, { unique: true });
 
-RoutineSchema.pre('save', function () {
+HabitCheckInSchema.pre('save', function () {
     if (this.date && !this.dateString) {
         this.dateString = formatDateString(this.date);
     }
@@ -75,6 +75,6 @@ RoutineSchema.pre('save', function () {
     }
 });
 
-const RoutineModel = mongoose.model('Routine', RoutineSchema);
+const HabitCheckInModel = mongoose.model('HabitCheckIn', HabitCheckInSchema);
 
-export default RoutineModel;
+export default HabitCheckInModel;

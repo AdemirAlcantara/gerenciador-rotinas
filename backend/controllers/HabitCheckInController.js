@@ -1,8 +1,8 @@
-import Routine from '../models/Routine.js';
+import HabitCheckIn from '../models/HabitCheckIn.js';
 import Habit from '../models/Habit.js';
 import HabitCategory from '../models/HabitCategory.js';
 
-class RoutineController {
+class HabitCheckInController {
 
     static async create(req, res) {
         try {
@@ -19,7 +19,7 @@ class RoutineController {
                     return res.status(400).json({ error: 'Categoria inválida para o usuário atual' });
                 }
             }
-            const newRoutine = new Routine({
+            const newHabitCheckIn = new HabitCheckIn({
                 date,
                 habit,
                 user: req.user.id,
@@ -30,7 +30,7 @@ class RoutineController {
                 energyLevel,
                 notes
             });
-            const saved = await newRoutine.save();
+            const saved = await newHabitCheckIn.save();
             return res.status(201).json(saved);
         } catch (error) {
             return res.status(400).json({ error: error.message });
@@ -40,16 +40,16 @@ class RoutineController {
     static async findAll(req, res) {
         try {
             const { date, status } = req.query;
-            let routines = await Routine.findByUser(req.user.id);
+            let habitCheckIns = await HabitCheckIn.findByUser(req.user.id);
 
             if (date) {
-                routines = routines.filter((routine) => routine.dateString === date);
+                habitCheckIns = habitCheckIns.filter((checkIn) => checkIn.dateString === date);
             }
             if (status) {
-                routines = routines.filter((routine) => routine.status === status);
+                habitCheckIns = habitCheckIns.filter((checkIn) => checkIn.status === status);
             }
 
-            return res.status(200).json(routines);
+            return res.status(200).json(habitCheckIns);
         } catch (error) {
             return res.status(500).json({ error: error.message });
         }
@@ -57,14 +57,14 @@ class RoutineController {
 
     static async findById(req, res) {
         try {
-            const routine = await Routine.findById(req.params.id);
-            if (!routine) {
-                return res.status(404).json({ error: 'Registro de rotina não encontrado' });
+            const habitCheckIn = await HabitCheckIn.findById(req.params.id);
+            if (!habitCheckIn) {
+                return res.status(404).json({ error: 'Check-in não encontrado' });
             }
-            if ((routine.user?._id || routine.user)?.toString() !== req.user.id) {
-                return res.status(403).json({ error: 'Acesso negado a este registro de rotina' });
+            if ((habitCheckIn.user?._id || habitCheckIn.user)?.toString() !== req.user.id) {
+                return res.status(403).json({ error: 'Acesso negado a este check-in' });
             }
-            return res.status(200).json(routine);
+            return res.status(200).json(habitCheckIn);
         } catch (error) {
             return res.status(500).json({ error: error.message });
         }
@@ -72,12 +72,12 @@ class RoutineController {
 
     static async update(req, res) {
         try {
-            const existing = await Routine.findById(req.params.id);
+            const existing = await HabitCheckIn.findById(req.params.id);
             if (!existing) {
-                return res.status(404).json({ error: 'Registro de rotina não encontrado' });
+                return res.status(404).json({ error: 'Check-in não encontrado' });
             }
             if ((existing.user?._id || existing.user)?.toString() !== req.user.id) {
-                return res.status(403).json({ error: 'Acesso negado a este registro de rotina' });
+                return res.status(403).json({ error: 'Acesso negado a este check-in' });
             }
             if (req.body.habit) {
                 const ownedHabit = await Habit.findById(req.body.habit);
@@ -91,12 +91,12 @@ class RoutineController {
                     return res.status(400).json({ error: 'Categoria inválida para o usuário atual' });
                 }
             }
-            const updated = await Routine.update(req.params.id, {
+            const updated = await HabitCheckIn.update(req.params.id, {
                 ...req.body,
                 user: req.user.id
             });
             if (!updated) {
-                return res.status(404).json({ error: 'Registro de rotina não encontrado' });
+                return res.status(404).json({ error: 'Check-in não encontrado' });
             }
             return res.status(200).json(updated);
         } catch (error) {
@@ -106,18 +106,18 @@ class RoutineController {
 
     static async delete(req, res) {
         try {
-            const existing = await Routine.findById(req.params.id);
+            const existing = await HabitCheckIn.findById(req.params.id);
             if (!existing) {
-                return res.status(404).json({ error: 'Registro de rotina não encontrado' });
+                return res.status(404).json({ error: 'Check-in não encontrado' });
             }
             if ((existing.user?._id || existing.user)?.toString() !== req.user.id) {
-                return res.status(403).json({ error: 'Acesso negado a este registro de rotina' });
+                return res.status(403).json({ error: 'Acesso negado a este check-in' });
             }
-            const deleted = await Routine.delete(req.params.id);
+            const deleted = await HabitCheckIn.delete(req.params.id);
             if (!deleted) {
-                return res.status(404).json({ error: 'Registro de rotina não encontrado' });
+                return res.status(404).json({ error: 'Check-in não encontrado' });
             }
-            return res.status(200).json({ message: 'Registro de rotina removido com sucesso' });
+            return res.status(200).json({ message: 'Check-in removido com sucesso' });
         } catch (error) {
             return res.status(500).json({ error: error.message });
         }
@@ -125,5 +125,5 @@ class RoutineController {
 
 }
 
-export default RoutineController;
+export default HabitCheckInController;
 

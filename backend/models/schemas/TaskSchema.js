@@ -53,9 +53,9 @@ const TaskSchema = new mongoose.Schema(
             type: Date,
             default: null
         },
-        routine: {
+        habitCheckIn: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'Routine',
+            ref: 'HabitCheckIn',
             required: false,
             default: null
         },

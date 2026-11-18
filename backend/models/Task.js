@@ -4,7 +4,7 @@ import { formatDateString, formatTimeHHmm } from '../utils/utils.js';
 
 class Task {
 
-    constructor({ title, description, dueDate, timeBlock, targetTime, startTime, endTime, status, priority, notified, notifiedAt, routine, category, user }) {
+    constructor({ title, description, dueDate, timeBlock, targetTime, startTime, endTime, status, priority, notified, notifiedAt, habitCheckIn, category, user }) {
         this.title = title;
         this.description = description;
         this.dueDate = dueDate || formatDateString(new Date());
@@ -16,7 +16,7 @@ class Task {
         this.priority = priority;
         this.notified = notified ?? false;
         this.notifiedAt = notifiedAt ?? null;
-        this.routine = routine;
+        this.habitCheckIn = habitCheckIn;
         this.category = category;
         this.user = user;
     }
@@ -34,7 +34,7 @@ class Task {
             priority: this.priority,
             notified: this.notified,
             notifiedAt: this.notifiedAt,
-            routine: this.routine,
+            habitCheckIn: this.habitCheckIn,
             category: this.category,
             user: this.user
         });
@@ -44,7 +44,7 @@ class Task {
 
     static async findAll() {
         return await TaskModel.find()
-            .populate('routine')
+            .populate('habitCheckIn')
             .populate('category')
             .populate('user', '-password')
             .sort({ dueDate: -1, targetTime: 1, title: 1 });
@@ -55,17 +55,17 @@ class Task {
             return null;
         }
         return await TaskModel.findById(id)
-            .populate('routine')
+            .populate('habitCheckIn')
             .populate('category')
             .populate('user', '-password');
     }
 
-    static async findByRoutine(routineId) {
-        if (!mongoose.Types.ObjectId.isValid(routineId)) {
+    static async findByHabitCheckIn(habitCheckInId) {
+        if (!mongoose.Types.ObjectId.isValid(habitCheckInId)) {
             return [];
         }
-        return await TaskModel.find({ routine: routineId })
-            .populate('routine')
+        return await TaskModel.find({ habitCheckIn: habitCheckInId })
+            .populate('habitCheckIn')
             .populate('category')
             .populate('user', '-password')
             .sort({ targetTime: 1, title: 1 });
@@ -73,7 +73,7 @@ class Task {
 
     static async findByTimeBlock(timeBlock) {
         return await TaskModel.find({ timeBlock })
-            .populate('routine')
+            .populate('habitCheckIn')
             .populate('category')
             .populate('user', '-password')
             .sort({ targetTime: 1, title: 1 });
@@ -81,7 +81,7 @@ class Task {
 
     static async findByStatus(status) {
         return await TaskModel.find({ status })
-            .populate('routine')
+            .populate('habitCheckIn')
             .populate('category')
             .populate('user', '-password')
             .sort({ targetTime: 1, title: 1 });
@@ -92,7 +92,7 @@ class Task {
             return [];
         }
         return await TaskModel.find({ user: userId })
-            .populate('routine')
+            .populate('habitCheckIn')
             .populate('category')
             .populate('user', '-password')
             .sort({ dueDate: -1, targetTime: 1, title: 1 });
@@ -118,7 +118,7 @@ class Task {
         }
 
         return await TaskModel.find(query)
-            .populate('routine')
+            .populate('habitCheckIn')
             .populate('category')
             .populate('user', '-password')
             .sort({ targetTime: 1 });
@@ -133,12 +133,12 @@ class Task {
             { notified: true, notifiedAt: new Date() },
             { new: true }
         )
-            .populate('routine')
+            .populate('habitCheckIn')
             .populate('category')
             .populate('user', '-password');
     }
 
-    static async update(id, { title, description, dueDate, timeBlock, targetTime, startTime, endTime, status, priority, notified, notifiedAt, routine, category, user }) {
+    static async update(id, { title, description, dueDate, timeBlock, targetTime, startTime, endTime, status, priority, notified, notifiedAt, habitCheckIn, category, user }) {
         if (!mongoose.Types.ObjectId.isValid(id)) {
             return null;
         }
@@ -158,13 +158,13 @@ class Task {
                 priority,
                 notified,
                 notifiedAt,
-                routine,
+                habitCheckIn,
                 category,
                 user
             },
             { new: true, runValidators: true }
         )
-            .populate('routine')
+            .populate('habitCheckIn')
             .populate('category')
             .populate('user', '-password');
     }

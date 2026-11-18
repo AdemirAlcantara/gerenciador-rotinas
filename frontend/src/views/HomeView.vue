@@ -4,7 +4,7 @@
       <div>
         <p class="eyebrow">Painel pessoal</p>
         <h1>Olá, {{ firstName }}</h1>
-        <p class="welcome-text">Organize seus hábitos, tarefas e rotinas em um só lugar.</p>
+        <p class="welcome-text">Organize seus hábitos, tarefas e check-ins em um só lugar.</p>
       </div>
       <router-link class="primary-action" to="/tasks">
         <span aria-hidden="true">+</span>
@@ -64,7 +64,7 @@ export default {
         categories: 0,
         habits: 0,
         tasks: 0,
-        routines: 0
+        habitCheckIns: 0
       },
       loadingCounts: true,
       loadError: ''
@@ -104,10 +104,10 @@ export default {
           color: 'icon-blue'
         },
         {
-          path: '/routines',
-          label: 'Rotinas',
+          path: '/habit-check-ins',
+          label: 'Check-ins',
           description: 'Registre o progresso dos seus hábitos.',
-          count: this.counts.routines,
+          count: this.counts.habitCheckIns,
           icon: 'R',
           color: 'icon-orange'
         }
@@ -125,7 +125,7 @@ export default {
         ['categories', '/habit-categories'],
         ['habits', '/habits'],
         ['tasks', '/tasks'],
-        ['routines', '/routines']
+        ['habitCheckIns', '/habit-check-ins']
       ];
 
       const results = await Promise.all(endpoints.map(async ([key, endpoint]) => {

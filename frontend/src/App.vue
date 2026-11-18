@@ -4,7 +4,7 @@
       <nav class="navbar" aria-label="Navegação principal">
         <router-link to="/" class="brand" aria-label="Ir para o início">
           <span class="brand-mark">R</span>
-          <span class="brand-name">Rotinas</span>
+          <span class="brand-name">Check-ins</span>
         </router-link>
 
         <div class="nav-links">
@@ -12,7 +12,7 @@
           <router-link to="/habit-categories">Categorias</router-link>
           <router-link to="/habits">Hábitos</router-link>
           <router-link to="/tasks">Tarefas</router-link>
-          <router-link to="/routines">Rotinas</router-link>
+          <router-link to="/habit-check-ins">Check-ins</router-link>
         </div>
 
         <div class="nav-user">
