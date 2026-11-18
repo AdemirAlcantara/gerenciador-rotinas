@@ -32,7 +32,6 @@
           <label for="status">Status *</label>
           <select id="status" v-model="form.status" required>
             <option value="Pendente">Pendente</option>
-            <option value="Em Andamento">Em Andamento</option>
             <option value="Concluída">Concluída</option>
             <option value="Cancelada">Cancelada</option>
             <option value="Não realizada">Não realizada</option>
@@ -108,6 +107,18 @@
             <td>{{ task.status }}</td>
             <td>{{ task.priority }}</td>
             <td class="actions-cell">
+              <select
+                class="status-action"
+                :value="task.status"
+                aria-label="Atualizar status da tarefa"
+                @change="handleStatusUpdate(task._id, $event)"
+              >
+                <option value="" disabled>Atualizar status</option>
+                <option value="Pendente">Pendente</option>
+                <option value="Concluída">Concluída</option>
+                <option value="Cancelada">Cancelada</option>
+                <option value="Não realizada">Não realizada</option>
+              </select>
               <button class="btn-edit" @click="startEdit(task)">Editar</button>
               <button class="btn-delete" @click="handleDelete(task._id)">Excluir</button>
             </td>
@@ -209,7 +220,7 @@ export default {
         description: task.description || '',
         dueDate: task.dueDate || today(),
         targetTime: task.targetTime || '',
-        status: task.status || 'Pendente',
+        status: task.status === 'Em Andamento' ? 'Pendente' : (task.status || 'Pendente'),
         priority: task.priority || 'Média',
         category: task.category?._id || task.category || ''
       };
@@ -226,6 +237,19 @@ export default {
         await this.fetchTasks();
       } catch (error) {
         this.errorMessage = error.response?.data?.error || 'Erro ao excluir tarefa.';
+      }
+    },
+    async handleStatusUpdate(id, event) {
+      const status = event.target.value;
+      if (!status) return;
+      this.errorMessage = '';
+      this.successMessage = '';
+      try {
+        await axiosInstance.patch(`/tasks/${id}/status`, { status });
+        this.successMessage = `Status da tarefa atualizado para ${status}!`;
+        await this.fetchTasks();
+      } catch (error) {
+        this.errorMessage = error.response?.data?.error || 'Erro ao atualizar o status da tarefa.';
       }
     },
     resetForm() {
@@ -264,11 +288,38 @@ button { border: 0; border-radius: 6px; color: #fff; padding: 8px 14px; cursor: 
 button:disabled { opacity: .6; cursor: not-allowed; }
 .task-table { width: 100%; table-layout: fixed; border-collapse: collapse; margin-top: 12px; }
 .task-table th, .task-table td { border-bottom: 1px solid #e2e8f0; padding: 12px 10px; text-align: left; overflow-wrap: anywhere; word-break: break-word; }
-.task-table th:last-child, .task-table td:last-child { width: 160px; padding-right: 16px; }
+.task-table th:last-child, .task-table td:last-child { width: 290px; padding-right: 16px; }
 .task-table th:last-child { text-align: right; }
 .task-table .actions-cell { text-align: right; vertical-align: middle; white-space: nowrap; }
-.task-table .actions-cell button { padding: 6px 12px; border-radius: 4px; white-space: nowrap; }
-.task-table .actions-cell button + button { margin-left: 8px; }
+.task-table .actions-cell button,
+.task-table .status-action { height: 32px; padding: 6px 10px; border-radius: 4px; white-space: nowrap; }
+.task-table .actions-cell > * + * { margin-left: 6px; }
+.status-action {
+  max-width: 130px;
+  border: 1px solid #cbd5e1;
+  background: #e2e8f0;
+  color: #111827;
+  cursor: pointer;
+  font-weight: 600;
+  accent-color: #facc15;
+}
+
+.status-action option {
+  background: #f8fafc;
+  color: #111827;
+}
+
+.status-action option:checked {
+  background: #fef3c7;
+  color: #111827;
+  font-weight: 700;
+}
+
+.status-action option:hover,
+.status-action option:focus {
+  background: #fde68a;
+  color: #111827;
+}
 .task-table small { display: block; color: #64748b; margin-top: 4px; }
 .alert { padding: 10px 12px; border-radius: 6px; margin-bottom: 14px; font-size: 14px; }
 .alert.error { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; } .alert.success { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }

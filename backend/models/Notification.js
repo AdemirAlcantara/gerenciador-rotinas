@@ -107,7 +107,7 @@ class Notification {
 
         const tasks = await TaskModel.find({
             user: userId,
-            status: { $in: ['Pendente', 'Em Andamento'] }
+            status: 'Pendente'
         });
         const operations = [];
 
@@ -151,7 +151,7 @@ class Notification {
     static async markOverdueTasksForUser(userId, currentDate) {
         const tasks = await TaskModel.find({
             user: userId,
-            status: { $in: ['Pendente', 'Em Andamento'] }
+            status: 'Pendente'
         });
         const overdueIds = tasks
             .filter((task) => dateDifferenceInDays(task.dueDate, currentDate) < 0)

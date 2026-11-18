@@ -62,6 +62,7 @@ router.post('/tasks', TaskController.create);
 router.get('/tasks', TaskController.findAll);
 router.get('/tasks/:id', TaskController.findById);
 router.put('/tasks/:id', TaskController.update);
+router.patch('/tasks/:id/status', TaskController.updateStatus);
 router.delete('/tasks/:id', TaskController.delete);
 
 // Notifications

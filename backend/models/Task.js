@@ -61,10 +61,16 @@ class Task {
         if (!mongoose.Types.ObjectId.isValid(userId)) {
             return [];
         }
-        return await TaskModel.find({ user: userId })
+        const tasks = await TaskModel.find({ user: userId })
             .populate('category')
             .populate('user', '-password')
             .sort({ dueDate: -1, targetTime: 1, title: 1 });
+        tasks.forEach((task) => {
+            if (task.status === 'Em Andamento') {
+                task.status = 'Pendente';
+            }
+        });
+        return tasks;
     }
 
     /**
@@ -77,7 +83,7 @@ class Task {
 
         const query = {
             dueDate: targetDate,
-            status: { $in: ['Pendente', 'Em Andamento'] },
+            status: 'Pendente',
             notified: false,
             targetTime: { $ne: null, $lte: targetTime }
         };
@@ -123,6 +129,19 @@ class Task {
                 category,
                 user
             },
+            { new: true, runValidators: true }
+        )
+            .populate('category')
+            .populate('user', '-password');
+    }
+
+    static async updateStatus(id, status) {
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return null;
+        }
+        return await TaskModel.findByIdAndUpdate(
+            id,
+            { $set: { status } },
             { new: true, runValidators: true }
         )
             .populate('category')

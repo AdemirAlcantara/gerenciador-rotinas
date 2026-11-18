@@ -22,7 +22,7 @@
         <div class="nav-user">
           <router-link to="/account" class="account-button" :title="userName">
             <span class="avatar">{{ initials }}</span>
-            <span class="account-label">Minha conta</span>
+            <span class="account-label">{{ userName }}</span>
           </router-link>
           <button class="logout-button" type="button" @click="logout" aria-label="Sair">
             Sair

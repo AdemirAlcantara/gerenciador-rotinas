@@ -88,6 +88,7 @@ class TaskController {
                     return res.status(400).json({ error: 'Categoria inválida para o usuário atual' });
                 }
             }
+
             const updated = await Task.update(req.params.id, {
                 ...req.body,
                 user: req.user.id
@@ -95,6 +96,29 @@ class TaskController {
             if (!updated) {
                 return res.status(404).json({ error: 'Tarefa não encontrada' });
             }
+            await Notification.syncForTask(updated);
+            return res.status(200).json(updated);
+        } catch (error) {
+            return res.status(400).json({ error: error.message });
+        }
+    }
+
+    static async updateStatus(req, res) {
+        try {
+            const existing = await Task.findById(req.params.id);
+            if (!existing) {
+                return res.status(404).json({ error: 'Tarefa não encontrada' });
+            }
+            if ((existing.user?._id || existing.user)?.toString() !== req.user.id) {
+                return res.status(403).json({ error: 'Acesso negado a esta tarefa' });
+            }
+
+            const allowedStatuses = ['Pendente', 'Concluída', 'Cancelada', 'Não realizada'];
+            if (!allowedStatuses.includes(req.body.status)) {
+                return res.status(400).json({ error: 'Status da tarefa inválido' });
+            }
+
+            const updated = await Task.updateStatus(req.params.id, req.body.status);
             await Notification.syncForTask(updated);
             return res.status(200).json(updated);
         } catch (error) {
