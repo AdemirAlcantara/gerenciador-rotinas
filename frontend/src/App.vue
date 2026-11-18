@@ -13,7 +13,10 @@
           <router-link to="/habits">Hábitos</router-link>
           <router-link to="/tasks">Tarefas</router-link>
           <router-link to="/habit-check-ins">Check-ins</router-link>
-          <router-link to="/notifications">Notificações</router-link>
+          <router-link to="/notifications" class="notification-link">
+            <span>Notificações</span>
+            <span v-if="hasUnreadNotifications" class="notification-dot" aria-label="Existem notificações não lidas"></span>
+          </router-link>
         </div>
 
         <div class="nav-user">
@@ -35,12 +38,15 @@
 </template>
 
 <script>
+import axiosInstance from './services/axiosInstance';
+
 export default {
   name: 'App',
   data() {
     return {
       authenticated: Boolean(localStorage.getItem('token')),
-      user: JSON.parse(localStorage.getItem('user') || 'null')
+      user: JSON.parse(localStorage.getItem('user') || 'null'),
+      hasUnreadNotifications: false
     };
   },
   computed: {
@@ -62,14 +68,30 @@ export default {
   },
   mounted() {
     window.addEventListener('auth-change', this.refreshAuthState);
+    window.addEventListener('notifications-change', this.fetchUnreadNotifications);
+    this.fetchUnreadNotifications();
   },
   beforeUnmount() {
     window.removeEventListener('auth-change', this.refreshAuthState);
+    window.removeEventListener('notifications-change', this.fetchUnreadNotifications);
   },
   methods: {
     refreshAuthState() {
       this.authenticated = Boolean(localStorage.getItem('token'));
       this.user = JSON.parse(localStorage.getItem('user') || 'null');
+      this.fetchUnreadNotifications();
+    },
+    async fetchUnreadNotifications() {
+      if (!this.authenticated) {
+        this.hasUnreadNotifications = false;
+        return;
+      }
+      try {
+        const response = await axiosInstance.get('/notifications');
+        this.hasUnreadNotifications = response.data.some((notification) => !notification.read);
+      } catch (error) {
+        this.hasUnreadNotifications = false;
+      }
     },
     logout() {
       localStorage.removeItem('token');
@@ -193,6 +215,22 @@ td {
 .nav-links a.router-link-active {
   color: #16845a;
   background: #edf8f3;
+}
+
+.notification-link {
+  position: relative;
+}
+
+.notification-dot {
+  position: absolute;
+  top: 2px;
+  right: 3px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #ef4444;
+  border: 2px solid #fff;
+  box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.12);
 }
 
 .nav-user {

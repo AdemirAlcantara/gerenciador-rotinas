@@ -2,7 +2,7 @@
   <div class="habit-page">
     <h1>Hábitos</h1>
 
-    <form class="habit-form" @submit.prevent="handleSubmit">
+    <form v-if="isFormOpen" class="habit-form" @submit.prevent="handleSubmit">
       <h2>{{ editingId ? 'Editar Hábito' : 'Novo Hábito' }}</h2>
 
       <div class="form-grid">
@@ -68,14 +68,21 @@
         <button type="submit" class="btn-primary" :disabled="loading || loadingCategories">
           {{ loading ? 'Salvando...' : editingId ? 'Atualizar' : 'Cadastrar' }}
         </button>
-        <button v-if="editingId" type="button" class="btn-secondary" @click="resetForm">
+        <button type="button" class="btn-secondary" @click="resetForm">
           Cancelar
         </button>
       </div>
     </form>
 
     <section class="habit-list-section">
-      <h2>Hábitos cadastrados</h2>
+      <div class="section-header">
+        <h2>Hábitos cadastrados</h2>
+        <button type="button" class="btn-primary" @click="openCreateForm">
+          Cadastrar Hábito
+        </button>
+      </div>
+      <p v-if="errorMessage" class="alert error">{{ errorMessage }}</p>
+      <p v-if="successMessage" class="alert success">{{ successMessage }}</p>
       <p v-if="loadingList">Carregando hábitos...</p>
       <p v-else-if="habits.length === 0" class="empty-state">Nenhum hábito cadastrado ainda.</p>
       <table v-else class="habit-table">
@@ -96,7 +103,10 @@
               <small v-if="item.description">{{ item.description }}</small>
             </td>
             <td>{{ item.category?.category || '—' }}</td>
-            <td>{{ scheduleLabel(item) }}</td>
+            <td>
+              <span>{{ scheduleTitle(item) }}</span>
+              <small v-if="scheduleDescription(item)">{{ scheduleDescription(item) }}</small>
+            </td>
             <td>{{ item.targetTime || '—' }}</td>
             <td>{{ item.active ? 'Ativo' : 'Inativo' }}</td>
             <td class="actions-cell">
@@ -132,6 +142,7 @@ export default {
       categories: [],
       form: emptyForm(),
       editingId: null,
+      isFormOpen: false,
       loading: false,
       loadingList: false,
       loadingCategories: false,
@@ -207,6 +218,7 @@ export default {
       }
     },
     startEdit(item) {
+      this.isFormOpen = true;
       this.editingId = item._id;
       this.form = {
         habit: item.habit,
@@ -237,7 +249,15 @@ export default {
     },
     resetForm() {
       this.editingId = null;
+      this.isFormOpen = false;
       this.form = emptyForm();
+    },
+    openCreateForm() {
+      this.editingId = null;
+      this.form = emptyForm();
+      this.errorMessage = '';
+      this.successMessage = '';
+      this.isFormOpen = true;
     },
     scheduleLabel(item) {
       if (item.frequency === 'Semanal') {
@@ -247,6 +267,20 @@ export default {
         return `Mensal (dia ${item.dayOfMonth})`;
       }
       return item.frequency;
+    },
+    scheduleTitle(item) {
+      if (item.frequency === 'Semanal') return 'Semanal';
+      if (item.frequency === 'Mensal') return 'Mensal';
+      return 'Diário';
+    },
+    scheduleDescription(item) {
+      if (item.frequency === 'Semanal') {
+        return (item.daysOfWeek || []).map((day) => this.weekdays[day]?.label).join(', ');
+      }
+      if (item.frequency === 'Mensal' && item.dayOfMonth) {
+        return `Dia ${item.dayOfMonth}`;
+      }
+      return '';
     }
   }
 };
@@ -254,7 +288,7 @@ export default {
 
 <style scoped>
 .habit-page {
-  max-width: 1000px;
+  max-width: 1180px;
   margin: 0 auto;
   padding: 20px;
   text-align: left;
@@ -322,6 +356,17 @@ export default {
   align-items: center;
 }
 
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.section-header h2 {
+  margin: 0;
+}
+
 button {
   border: 0;
   border-radius: 6px;
@@ -354,6 +399,7 @@ button:disabled {
 
 .habit-table {
   width: 100%;
+  table-layout: fixed;
   border-collapse: collapse;
   margin-top: 12px;
 }
@@ -369,12 +415,19 @@ button:disabled {
 
 .habit-table th:last-child,
 .habit-table td:last-child {
-  width: 140px;
+  width: 160px;
+  padding-right: 16px;
 }
 
 .habit-table .actions-cell {
+  display: flex;
+  justify-content: flex-end;
   white-space: nowrap;
   vertical-align: middle;
+}
+
+.habit-table .actions-cell button {
+  white-space: nowrap;
 }
 
 .habit-table .actions-cell button + button {

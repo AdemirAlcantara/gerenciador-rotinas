@@ -2,7 +2,7 @@
   <div class="category-page">
     <h1>Categorias de Hábitos</h1>
 
-    <form class="category-form" @submit.prevent="handleSubmit">
+    <form v-if="isFormOpen" class="category-form" @submit.prevent="handleSubmit">
       <h2>{{ editingId ? 'Editar Categoria' : 'Nova Categoria' }}</h2>
 
       <div class="form-group">
@@ -34,7 +34,6 @@
           {{ loading ? 'Salvando...' : editingId ? 'Atualizar' : 'Cadastrar' }}
         </button>
         <button
-          v-if="editingId"
           type="button"
           class="btn-secondary"
           @click="resetForm"
@@ -46,7 +45,14 @@
 
     <!-- Lista de Categorias -->
     <div class="category-list-section">
-      <h2>Categorias Cadastradas</h2>
+      <div class="section-header">
+        <h2>Categorias Cadastradas</h2>
+        <button type="button" class="btn-primary" @click="openCreateForm">
+          Cadastrar Categoria
+        </button>
+      </div>
+      <p v-if="errorMessage" class="alert error">{{ errorMessage }}</p>
+      <p v-if="successMessage" class="alert success">{{ successMessage }}</p>
 
       <p v-if="loadingList">Carregando categorias...</p>
       <p v-else-if="categories.length === 0" class="empty-state">
@@ -89,6 +95,7 @@ export default {
         descripition: ''
       },
       editingId: null,
+      isFormOpen: false,
       loading: false,
       loadingList: false,
       errorMessage: '',
@@ -135,6 +142,7 @@ export default {
       }
     },
     startEdit(item) {
+      this.isFormOpen = true;
       this.editingId = item._id;
       this.form.category = item.category;
       this.form.descripition = item.descripition || '';
@@ -158,8 +166,17 @@ export default {
     },
     resetForm() {
       this.editingId = null;
+      this.isFormOpen = false;
       this.form.category = '';
       this.form.descripition = '';
+    },
+    openCreateForm() {
+      this.editingId = null;
+      this.form.category = '';
+      this.form.descripition = '';
+      this.errorMessage = '';
+      this.successMessage = '';
+      this.isFormOpen = true;
     }
   }
 };
@@ -167,7 +184,7 @@ export default {
 
 <style scoped>
 .category-page {
-  max-width: 820px;
+  max-width: 1100px;
   margin: 0 auto;
   padding: 20px;
   text-align: left;
@@ -212,6 +229,17 @@ export default {
 .form-actions {
   display: flex;
   gap: 10px;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.section-header h2 {
+  margin: 0;
 }
 
 .btn-primary {
@@ -261,12 +289,20 @@ export default {
 
 .category-table th:last-child,
 .category-table td:last-child {
-  width: 140px;
+  width: 160px;
+  padding-right: 16px;
 }
 
 .actions-cell {
   display: flex;
+  align-items: center;
+  justify-content: flex-end;
   gap: 8px;
+  white-space: nowrap;
+}
+
+.actions-cell button {
+  white-space: nowrap;
 }
 
 .btn-edit {

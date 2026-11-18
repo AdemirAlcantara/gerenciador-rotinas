@@ -2,7 +2,7 @@
   <div class="check-in-page">
     <h1>Check-ins de Hábitos</h1>
 
-    <form class="check-in-form" @submit.prevent="handleSubmit">
+    <form v-if="isFormOpen" class="check-in-form" @submit.prevent="handleSubmit">
       <h2>{{ editingId ? 'Editar Check-in' : 'Novo Check-in' }}</h2>
 
       <div class="form-grid">
@@ -62,14 +62,21 @@
         <button type="submit" class="btn-primary" :disabled="loading || loadingOptions">
           {{ loading ? 'Salvando...' : editingId ? 'Atualizar' : 'Cadastrar' }}
         </button>
-        <button v-if="editingId" type="button" class="btn-secondary" @click="resetForm">
+        <button type="button" class="btn-secondary" @click="resetForm">
           Cancelar
         </button>
       </div>
     </form>
 
     <section class="check-in-list-section">
-      <h2>Check-ins cadastrados</h2>
+      <div class="section-header">
+        <h2>Check-ins cadastrados</h2>
+        <button type="button" class="btn-primary" @click="openCreateForm">
+          Cadastrar Check-in
+        </button>
+      </div>
+      <p v-if="errorMessage" class="alert error">{{ errorMessage }}</p>
+      <p v-if="successMessage" class="alert success">{{ successMessage }}</p>
       <p v-if="loadingList">Carregando check-ins...</p>
       <p v-else-if="habitCheckIns.length === 0" class="empty-state">Nenhum check-in cadastrado ainda.</p>
       <table v-else class="check-in-table">
@@ -84,7 +91,7 @@
         </thead>
         <tbody>
           <tr v-for="checkIn in habitCheckIns" :key="checkIn._id">
-            <td>{{ checkIn.dateString }}</td>
+            <td>{{ formatDate(checkIn.dateString) }}</td>
             <td>
               <strong>{{ checkIn.habit?.habit || '—' }}</strong>
               <small v-if="checkIn.notes">{{ checkIn.notes }}</small>
@@ -129,6 +136,7 @@ export default {
       habits: [],
       form: emptyForm(),
       editingId: null,
+      isFormOpen: false,
       loading: false,
       loadingList: false,
       loadingOptions: false,
@@ -198,6 +206,7 @@ export default {
       }
     },
     startEdit(checkIn) {
+      this.isFormOpen = true;
       this.editingId = checkIn._id;
       this.form = {
         date: checkIn.dateString || today(),
@@ -224,7 +233,20 @@ export default {
     },
     resetForm() {
       this.editingId = null;
+      this.isFormOpen = false;
       this.form = emptyForm();
+    },
+    formatDate(dateString) {
+      if (!dateString) return '—';
+      const [year, month, day] = String(dateString).slice(0, 10).split('-');
+      return year && month && day ? `${day}/${month}/${year}` : dateString;
+    },
+    openCreateForm() {
+      this.editingId = null;
+      this.form = emptyForm();
+      this.errorMessage = '';
+      this.successMessage = '';
+      this.isFormOpen = true;
     }
   }
 };
@@ -238,13 +260,16 @@ export default {
 .form-group label { display: block; font-weight: 600; margin-bottom: 6px; }
 .form-group input, .form-group select, .form-group textarea { width: 100%; box-sizing: border-box; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; }
 .form-actions { display: flex; gap: 8px; align-items: center; }
+.section-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.section-header h2 { margin: 0; }
 button { border: 0; border-radius: 6px; color: #fff; padding: 8px 14px; cursor: pointer; font-weight: 600; }
 .btn-primary { background: #42b983; } .btn-secondary { background: #94a3b8; } .btn-edit { background: #3b82f6; } .btn-delete { background: #ef4444; }
 button:disabled { opacity: .6; cursor: not-allowed; }
 .check-in-table { width: 100%; table-layout: fixed; border-collapse: collapse; margin-top: 12px; }
 .check-in-table th, .check-in-table td { border-bottom: 1px solid #e2e8f0; padding: 12px 10px; text-align: left; overflow-wrap: anywhere; word-break: break-word; }
-.check-in-table th:last-child, .check-in-table td:last-child { width: 140px; }
-.check-in-table .actions-cell { white-space: nowrap; vertical-align: middle; }
+.check-in-table th:last-child, .check-in-table td:last-child { width: 160px; padding-right: 16px; }
+.check-in-table .actions-cell { display: flex; justify-content: flex-end; white-space: nowrap; vertical-align: middle; }
+.check-in-table .actions-cell button { white-space: nowrap; }
 .check-in-table .actions-cell button + button { margin-left: 8px; }
 .check-in-table small { display: block; color: #64748b; margin-top: 4px; }
 .alert { padding: 10px 12px; border-radius: 6px; margin-bottom: 14px; font-size: 14px; }

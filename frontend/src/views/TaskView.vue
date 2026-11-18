@@ -2,7 +2,7 @@
   <div class="task-page">
     <h1>Tarefas</h1>
 
-    <form class="task-form" @submit.prevent="handleSubmit">
+    <form v-if="isFormOpen" class="task-form" @submit.prevent="handleSubmit">
       <h2>{{ editingId ? 'Editar Tarefa' : 'Nova Tarefa' }}</h2>
 
       <div class="form-grid">
@@ -69,14 +69,21 @@
         <button type="submit" class="btn-primary" :disabled="loading || loadingOptions">
           {{ loading ? 'Salvando...' : editingId ? 'Atualizar' : 'Cadastrar' }}
         </button>
-        <button v-if="editingId" type="button" class="btn-secondary" @click="resetForm">
+        <button type="button" class="btn-secondary" @click="resetForm">
           Cancelar
         </button>
       </div>
     </form>
 
     <section class="task-list-section">
-      <h2>Tarefas cadastradas</h2>
+      <div class="section-header">
+        <h2>Tarefas cadastradas</h2>
+        <button type="button" class="btn-primary" @click="openCreateForm">
+          Cadastrar Tarefa
+        </button>
+      </div>
+      <p v-if="errorMessage" class="alert error">{{ errorMessage }}</p>
+      <p v-if="successMessage" class="alert success">{{ successMessage }}</p>
       <p v-if="loadingList">Carregando tarefas...</p>
       <p v-else-if="tasks.length === 0" class="empty-state">Nenhuma tarefa cadastrada ainda.</p>
       <table v-else class="task-table">
@@ -96,7 +103,7 @@
               <strong>{{ task.title }}</strong>
               <small v-if="task.description">{{ task.description }}</small>
             </td>
-            <td>{{ task.dueDate }}</td>
+            <td>{{ formatDate(task.dueDate) }}</td>
             <td>{{ task.targetTime || '—' }}</td>
             <td>{{ task.status }}</td>
             <td>{{ task.priority }}</td>
@@ -133,6 +140,7 @@ export default {
       categories: [],
       form: emptyForm(),
       editingId: null,
+      isFormOpen: false,
       loading: false,
       loadingList: false,
       loadingOptions: false,
@@ -194,6 +202,7 @@ export default {
       }
     },
     startEdit(task) {
+      this.isFormOpen = true;
       this.editingId = task._id;
       this.form = {
         title: task.title,
@@ -221,7 +230,20 @@ export default {
     },
     resetForm() {
       this.editingId = null;
+      this.isFormOpen = false;
       this.form = emptyForm();
+    },
+    formatDate(dateString) {
+      if (!dateString) return '—';
+      const [year, month, day] = String(dateString).slice(0, 10).split('-');
+      return year && month && day ? `${day}/${month}/${year}` : dateString;
+    },
+    openCreateForm() {
+      this.editingId = null;
+      this.form = emptyForm();
+      this.errorMessage = '';
+      this.successMessage = '';
+      this.isFormOpen = true;
     },
   }
 };
@@ -235,13 +257,16 @@ export default {
 .form-group label { display: block; font-weight: 600; margin-bottom: 6px; }
 .form-group input, .form-group select, .form-group textarea { width: 100%; box-sizing: border-box; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; }
 .form-actions { display: flex; gap: 8px; align-items: center; }
+.section-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.section-header h2 { margin: 0; }
 button { border: 0; border-radius: 6px; color: #fff; padding: 8px 14px; cursor: pointer; font-weight: 600; }
 .btn-primary { background: #42b983; } .btn-secondary { background: #94a3b8; } .btn-edit { background: #3b82f6; } .btn-delete { background: #ef4444; }
 button:disabled { opacity: .6; cursor: not-allowed; }
 .task-table { width: 100%; table-layout: fixed; border-collapse: collapse; margin-top: 12px; }
 .task-table th, .task-table td { border-bottom: 1px solid #e2e8f0; padding: 12px 10px; text-align: left; overflow-wrap: anywhere; word-break: break-word; }
-.task-table th:last-child, .task-table td:last-child { width: 140px; }
-.task-table .actions-cell { white-space: nowrap; vertical-align: middle; }
+.task-table th:last-child, .task-table td:last-child { width: 160px; padding-right: 16px; }
+.task-table .actions-cell { display: flex; justify-content: flex-end; white-space: nowrap; vertical-align: middle; }
+.task-table .actions-cell button { white-space: nowrap; }
 .task-table .actions-cell button + button { margin-left: 8px; }
 .task-table small { display: block; color: #64748b; margin-top: 4px; }
 .alert { padding: 10px 12px; border-radius: 6px; margin-bottom: 14px; font-size: 14px; }

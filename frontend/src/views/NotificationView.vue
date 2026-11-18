@@ -36,7 +36,7 @@
           <span class="notification-status">{{ notification.read ? 'Lida' : 'Nova' }}</span>
           <h2>{{ notification.message }}</h2>
           <p v-if="notification.task?.description">{{ notification.task.description }}</p>
-          <small>Data da tarefa: {{ notification.dueDate }}</small>
+          <small>Data da tarefa: {{ formatDate(notification.dueDate) }}</small>
         </div>
         <button
           v-if="!notification.read"
@@ -67,12 +67,18 @@ export default {
     this.fetchNotifications();
   },
   methods: {
+    formatDate(dateString) {
+      if (!dateString) return '—';
+      const [year, month, day] = String(dateString).slice(0, 10).split('-');
+      return year && month && day ? `${day}/${month}/${year}` : dateString;
+    },
     async fetchNotifications() {
       this.loading = true;
       this.errorMessage = '';
       try {
         const response = await axiosInstance.get('/notifications');
         this.notifications = response.data;
+        window.dispatchEvent(new Event('notifications-change'));
       } catch (error) {
         this.errorMessage = error.response?.data?.error || 'Não foi possível carregar as notificações.';
       } finally {
@@ -86,6 +92,7 @@ export default {
         if (index !== -1) {
           this.notifications.splice(index, 1, response.data);
         }
+        window.dispatchEvent(new Event('notifications-change'));
       } catch (error) {
         this.errorMessage = error.response?.data?.error || 'Não foi possível atualizar a notificação.';
       }
@@ -94,6 +101,7 @@ export default {
       try {
         await axiosInstance.patch(`/notifications/${notification._id}/dismiss`);
         this.notifications = this.notifications.filter((item) => item._id !== notification._id);
+        window.dispatchEvent(new Event('notifications-change'));
       } catch (error) {
         this.errorMessage = error.response?.data?.error || 'Não foi possível retirar a notificação.';
       }
