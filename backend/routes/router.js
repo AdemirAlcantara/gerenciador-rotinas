@@ -7,6 +7,7 @@ import TaskController from '../controllers/TaskController.js';
 import AuthController from '../controllers/AuthController.js';
 import authMiddleware from '../middlewares/authMiddleware.js';
 import NotificationController from '../controllers/NotificationController.js';
+import DashboardController from '../controllers/DashboardController.js';
 
 const router = Router();
 
@@ -25,6 +26,10 @@ router.put('/auth/password', authMiddleware, AuthController.changePassword);
 router.post('/users', UserController.create);
 
 router.use(authMiddleware);
+
+// Dashboard
+router.get('/dashboard/stats', DashboardController.getStats);
+router.post('/dashboard/ai-analysis', DashboardController.getAiAnalysis);
 
 // Current user
 router.get('/users/me', UserController.findCurrent);

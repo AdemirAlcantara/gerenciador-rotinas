@@ -6,10 +6,16 @@
         <h1>Olá, {{ firstName }}</h1>
         <p class="welcome-text">Organize seus hábitos, tarefas e check-ins em um só lugar.</p>
       </div>
-      <router-link class="primary-action" to="/tasks">
-        <span aria-hidden="true">+</span>
-        Nova tarefa
-      </router-link>
+      <div class="fidelity-card" aria-label="Fidelidade geral da rotina">
+        <div class="fidelity-main">
+          <strong>{{ loadingStats ? '...' : `${stats.overallFidelity}%` }}</strong>
+          <span>Fidelidade geral</span>
+        </div>
+        <div class="fidelity-details">
+          <span>Hábitos <strong>{{ loadingStats ? '...' : `${stats.habitFidelity}%` }}</strong></span>
+          <span>Tarefas <strong>{{ loadingStats ? '...' : `${stats.taskFidelity}%` }}</strong></span>
+        </div>
+      </div>
     </section>
 
     <section class="summary-grid" aria-label="Resumo da aplicação">
@@ -31,23 +37,45 @@
       </router-link>
     </section>
 
-    <section class="quick-section">
+    <section class="ai-section">
       <div class="section-heading">
         <div>
-          <p class="eyebrow">Acesso rápido</p>
-          <h2>O que você deseja fazer?</h2>
+          <p class="eyebrow">Integração com IA</p>
+          <h2>Análise da sua rotina</h2>
         </div>
+        <button type="button" class="ai-refresh" :disabled="loadingAi" @click="loadAiAnalysis">
+          {{ loadingAi ? 'Analisando...' : 'Analisar novamente' }}
+        </button>
       </div>
 
-      <div class="quick-grid">
-        <router-link v-for="item in summaryItems" :key="item.path" :to="item.path" class="quick-card">
-          <span class="quick-icon" :class="item.color" aria-hidden="true">{{ item.icon }}</span>
-          <span>
-            <strong>Gerenciar {{ item.label.toLowerCase() }}</strong>
-            <small>{{ item.description }}</small>
-          </span>
-          <span class="card-arrow" aria-hidden="true">→</span>
-        </router-link>
+      <div v-if="aiError" class="ai-error">{{ aiError }}</div>
+      <div v-else-if="loadingAi" class="ai-loading">
+        O assistente está analisando seus check-ins e tarefas dos últimos 30 dias...
+      </div>
+      <div v-else-if="aiAnalysis" class="ai-content">
+        <p class="ai-summary">{{ aiAnalysis.resumo }}</p>
+        <div class="ai-grid">
+          <article v-if="aiAnalysis.pontosPositivos?.length" class="ai-card ai-positive">
+            <h3>Pontos positivos</h3>
+            <ul>
+              <li v-for="(item, index) in aiAnalysis.pontosPositivos" :key="index">{{ item }}</li>
+            </ul>
+          </article>
+          <article v-if="aiAnalysis.pontosDeAtencao?.length" class="ai-card ai-attention">
+            <h3>Pontos de atenção</h3>
+            <ul>
+              <li v-for="(item, index) in aiAnalysis.pontosDeAtencao" :key="index">{{ item }}</li>
+            </ul>
+          </article>
+        </div>
+        <div class="ai-recommendation">
+          <span>Recomendação</span>
+          <strong>{{ aiAnalysis.recomendacao }}</strong>
+        </div>
+        <div class="ai-goal">
+          <span>Meta sugerida</span>
+          <strong>{{ aiAnalysis.metaSugerida }}</strong>
+        </div>
       </div>
     </section>
   </div>
@@ -66,8 +94,17 @@ export default {
         tasks: 0,
         habitCheckIns: 0
       },
+      stats: {
+        habitFidelity: 0,
+        taskFidelity: 0,
+        overallFidelity: 0
+      },
+      aiAnalysis: null,
       loadingCounts: true,
-      loadError: ''
+      loadingStats: true,
+      loadingAi: false,
+      loadError: '',
+      aiError: ''
     };
   },
   computed: {
@@ -116,6 +153,8 @@ export default {
   },
   mounted() {
     this.loadCounts();
+    this.loadStats();
+    this.loadAiAnalysis();
   },
   methods: {
     async loadCounts() {
@@ -141,6 +180,29 @@ export default {
       const firstError = results.find(Boolean);
       this.loadError = firstError || '';
       this.loadingCounts = false;
+    },
+    async loadStats() {
+      this.loadingStats = true;
+      try {
+        const response = await axiosInstance.get('/dashboard/stats');
+        this.stats = response.data;
+      } catch (error) {
+        this.loadError = error.response?.data?.error || 'Não foi possível carregar a fidelidade.';
+      } finally {
+        this.loadingStats = false;
+      }
+    },
+    async loadAiAnalysis() {
+      this.loadingAi = true;
+      this.aiError = '';
+      try {
+        const response = await axiosInstance.post('/dashboard/ai-analysis');
+        this.aiAnalysis = response.data;
+      } catch (error) {
+        this.aiError = error.response?.data?.error || 'Não foi possível gerar a análise da rotina.';
+      } finally {
+        this.loadingAi = false;
+      }
     }
   }
 };
@@ -192,24 +254,47 @@ export default {
   font-size: 16px;
 }
 
-.primary-action {
+.fidelity-card {
   flex: 0 0 auto;
-  display: inline-flex;
+  min-width: 220px;
+  display: flex;
   align-items: center;
-  gap: 9px;
-  padding: 12px 16px;
+  gap: 18px;
+  padding: 16px 18px;
   border-radius: 10px;
-  color: #18352b;
+  color: #7c2d12;
   background: #fff;
-  text-decoration: none;
-  font-size: 14px;
-  font-weight: 800;
   box-shadow: 0 8px 20px rgba(15, 23, 42, 0.12);
 }
 
-.primary-action span {
-  font-size: 20px;
+.fidelity-main,
+.fidelity-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.fidelity-main strong {
+  font-size: 34px;
   line-height: 1;
+}
+
+.fidelity-main span {
+  margin-top: 6px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.fidelity-details {
+  gap: 7px;
+  padding-left: 16px;
+  border-left: 1px solid #fed7aa;
+  font-size: 12px;
+  color: #92400e;
+}
+
+.fidelity-details strong {
+  margin-left: 3px;
+  font-size: 14px;
 }
 
 .summary-grid {
@@ -229,8 +314,7 @@ export default {
   font-size: 14px;
 }
 
-.summary-card,
-.quick-card {
+.summary-card {
   border: 1px solid #e4eaf2;
   background: #fff;
   color: #1e293b;
@@ -248,14 +332,12 @@ export default {
   transition: transform 0.18s ease, box-shadow 0.18s ease;
 }
 
-.summary-card:hover,
-.quick-card:hover {
+.summary-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 12px 26px rgba(30, 41, 59, 0.09);
 }
 
-.summary-icon,
-.quick-icon {
+.summary-icon {
   flex: 0 0 auto;
   display: grid;
   place-items: center;
@@ -298,8 +380,15 @@ export default {
 .icon-blue { color: #b45309; background: #fde68a; }
 .icon-orange { color: #9a3412; background: #ffedd5; }
 
-.quick-section {
+.ai-section {
   margin-top: 34px;
+}
+
+.section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
 }
 
 .section-heading h2 {
@@ -308,43 +397,91 @@ export default {
   letter-spacing: -0.3px;
 }
 
-.quick-grid {
+.ai-refresh {
+  border: 0;
+  border-radius: 8px;
+  padding: 10px 14px;
+  background: #f97316;
+  color: #fff;
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.ai-refresh:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.ai-loading,
+.ai-error,
+.ai-content {
+  margin-top: 16px;
+  border: 1px solid #fed7aa;
+  border-radius: 12px;
+  background: #fffaf0;
+  padding: 18px;
+}
+
+.ai-error {
+  color: #b91c1c;
+  background: #fef2f2;
+  border-color: #fecaca;
+}
+
+.ai-summary {
+  margin: 0 0 16px;
+  color: #475569;
+  line-height: 1.6;
+}
+
+.ai-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 14px;
-  margin-top: 16px;
 }
 
-.quick-card {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  min-height: 92px;
-  padding: 16px 18px;
-  border-radius: 12px;
-  transition: transform 0.18s ease, box-shadow 0.18s ease;
+.ai-card {
+  border-radius: 10px;
+  padding: 14px;
+  background: #fff;
 }
 
-.quick-icon {
-  width: 48px;
-  height: 48px;
-  font-size: 15px;
+.ai-card h3 {
+  margin: 0 0 8px;
 }
 
-.quick-card > span:nth-child(2) {
+.ai-card ul {
+  margin: 0;
+  padding-left: 18px;
+  color: #475569;
+}
+
+.ai-positive {
+  border-left: 4px solid #facc15;
+}
+
+.ai-attention {
+  border-left: 4px solid #f97316;
+}
+
+.ai-recommendation,
+.ai-goal {
   display: flex;
   flex-direction: column;
-  min-width: 0;
+  gap: 5px;
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  background: #fff;
+  color: #475569;
 }
 
-.quick-card strong {
-  font-size: 15px;
-}
-
-.quick-card small {
-  margin-top: 5px;
-  color: #64748b;
-  line-height: 1.35;
+.ai-recommendation span,
+.ai-goal span {
+  color: #c2410c;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
 }
 
 @media (max-width: 900px) {
@@ -360,8 +497,24 @@ export default {
     padding: 28px 24px;
   }
 
-  .summary-grid,
-  .quick-grid {
+  .fidelity-card {
+    width: 100%;
+  }
+
+  .section-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .ai-refresh {
+    width: 100%;
+  }
+
+  .ai-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .summary-grid {
     grid-template-columns: 1fr;
   }
 }
