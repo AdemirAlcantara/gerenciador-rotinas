@@ -7,7 +7,8 @@ class HabitCategoryController {
             const { category, descripition, description } = req.body;
             const newCategory = new HabitCategory({
                 category,
-                descripition: descripition ?? description
+                descripition: descripition ?? description,
+                user: req.user.id
             });
             const saved = await newCategory.save();
             return res.status(201).json(saved);
@@ -18,7 +19,7 @@ class HabitCategoryController {
 
     static async findAll(req, res) {
         try {
-            const categories = await HabitCategory.findAll();
+            const categories = await HabitCategory.findAll(req.user.id);
             return res.status(200).json(categories);
         } catch (error) {
             return res.status(500).json({ error: error.message });
@@ -31,6 +32,9 @@ class HabitCategoryController {
             if (!category) {
                 return res.status(404).json({ error: 'Categoria não encontrada' });
             }
+            if ((category.user?._id || category.user)?.toString() !== req.user.id) {
+                return res.status(403).json({ error: 'Acesso negado a esta categoria' });
+            }
             return res.status(200).json(category);
         } catch (error) {
             return res.status(500).json({ error: error.message });
@@ -39,6 +43,13 @@ class HabitCategoryController {
 
     static async update(req, res) {
         try {
+            const existing = await HabitCategory.findById(req.params.id);
+            if (!existing) {
+                return res.status(404).json({ error: 'Categoria não encontrada' });
+            }
+            if ((existing.user?._id || existing.user)?.toString() !== req.user.id) {
+                return res.status(403).json({ error: 'Acesso negado a esta categoria' });
+            }
             const { category, descripition, description } = req.body;
             const updated = await HabitCategory.update(req.params.id, {
                 category,
@@ -55,6 +66,13 @@ class HabitCategoryController {
 
     static async delete(req, res) {
         try {
+            const existing = await HabitCategory.findById(req.params.id);
+            if (!existing) {
+                return res.status(404).json({ error: 'Categoria não encontrada' });
+            }
+            if ((existing.user?._id || existing.user)?.toString() !== req.user.id) {
+                return res.status(403).json({ error: 'Acesso negado a esta categoria' });
+            }
             const deleted = await HabitCategory.delete(req.params.id);
             if (!deleted) {
                 return res.status(404).json({ error: 'Categoria não encontrada' });

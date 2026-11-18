@@ -89,15 +89,6 @@
           </select>
         </div>
 
-        <div class="form-group">
-          <label for="user">Usuário</label>
-          <select id="user" v-model="form.user">
-            <option value="">Nenhum</option>
-            <option v-for="user in users" :key="user._id" :value="user._id">
-              {{ user.name }} ({{ user.email }})
-            </option>
-          </select>
-        </div>
       </div>
 
       <p v-if="errorMessage" class="alert error">{{ errorMessage }}</p>
@@ -166,8 +157,7 @@ const emptyForm = () => ({
   status: 'Pendente',
   priority: 'Média',
   routine: '',
-  category: '',
-  user: ''
+  category: ''
 });
 
 export default {
@@ -177,7 +167,6 @@ export default {
       tasks: [],
       routines: [],
       categories: [],
-      users: [],
       form: emptyForm(),
       editingId: null,
       loading: false,
@@ -195,14 +184,12 @@ export default {
     async fetchOptions() {
       this.loadingOptions = true;
       try {
-        const [routines, categories, users] = await Promise.all([
+        const [routines, categories] = await Promise.all([
           axiosInstance.get('/routines'),
-          axiosInstance.get('/habit-categories'),
-          axiosInstance.get('/users')
+          axiosInstance.get('/habit-categories')
         ]);
         this.routines = routines.data;
         this.categories = categories.data;
-        this.users = users.data;
       } catch (error) {
         this.errorMessage = error.response?.data?.error || 'Não foi possível carregar as opções da tarefa.';
       } finally {
@@ -230,8 +217,7 @@ export default {
         startTime: this.form.startTime || null,
         endTime: this.form.endTime || null,
         routine: this.form.routine || null,
-        category: this.form.category || null,
-        user: this.form.user || null
+        category: this.form.category || null
       };
 
       try {
@@ -263,8 +249,7 @@ export default {
         status: task.status || 'Pendente',
         priority: task.priority || 'Média',
         routine: task.routine?._id || task.routine || '',
-        category: task.category?._id || task.category || '',
-        user: task.user?._id || task.user || ''
+        category: task.category?._id || task.category || ''
       };
       this.errorMessage = '';
       this.successMessage = '';
@@ -306,8 +291,9 @@ export default {
 button { border: 0; border-radius: 6px; color: #fff; padding: 8px 14px; cursor: pointer; font-weight: 600; }
 .btn-primary { background: #42b983; } .btn-secondary { background: #94a3b8; } .btn-edit { background: #3b82f6; } .btn-delete { background: #ef4444; }
 button:disabled { opacity: .6; cursor: not-allowed; }
-.task-table { width: 100%; border-collapse: collapse; margin-top: 12px; }
-.task-table th, .task-table td { border-bottom: 1px solid #e2e8f0; padding: 12px 10px; text-align: left; }
+.task-table { width: 100%; table-layout: fixed; border-collapse: collapse; margin-top: 12px; }
+.task-table th, .task-table td { border-bottom: 1px solid #e2e8f0; padding: 12px 10px; text-align: left; overflow-wrap: anywhere; word-break: break-word; }
+.task-table th:last-child, .task-table td:last-child { width: 140px; }
 .task-table .actions-cell { white-space: nowrap; vertical-align: middle; }
 .task-table .actions-cell button + button { margin-left: 8px; }
 .task-table small { display: block; color: #64748b; margin-top: 4px; }

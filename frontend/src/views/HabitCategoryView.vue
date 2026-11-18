@@ -201,6 +201,12 @@ export default {
   border-radius: 6px;
   box-sizing: border-box;
   font-size: 14px;
+  font-family: inherit;
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  font-family: inherit;
 }
 
 .form-actions {
@@ -234,6 +240,7 @@ export default {
 
 .category-table {
   width: 100%;
+  table-layout: fixed;
   border-collapse: collapse;
   margin-top: 12px;
 }
@@ -243,6 +250,18 @@ export default {
   border-bottom: 1px solid #e2e8f0;
   padding: 12px 10px;
   text-align: left;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.category-table th:first-child,
+.category-table td:first-child {
+  width: 25%;
+}
+
+.category-table th:last-child,
+.category-table td:last-child {
+  width: 140px;
 }
 
 .actions-cell {

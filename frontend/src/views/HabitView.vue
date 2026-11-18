@@ -375,6 +375,13 @@ button:disabled {
   border-bottom: 1px solid #e2e8f0;
   padding: 12px 10px;
   text-align: left;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.habit-table th:last-child,
+.habit-table td:last-child {
+  width: 140px;
 }
 
 .habit-table .actions-cell {

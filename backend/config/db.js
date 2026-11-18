@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import path from 'path';
 import { __dirname } from '../utils/utils.js';
+import HabitCategoryModel from '../models/schemas/HabitCategorySchema.js';
 
 dotenv.config({ path: path.join(__dirname, '.env') });
 
@@ -27,6 +28,8 @@ class Database {
             if (collections.length === 0) {
                 await conn.connection.db.createCollection('habitcategories');
             }
+
+            await HabitCategoryModel.syncIndexes();
 
             console.log(`MongoDB conectado com sucesso: ${conn.connection.host} (Database: ${conn.connection.name})`);
             return conn;

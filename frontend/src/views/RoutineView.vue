@@ -48,16 +48,6 @@
         </div>
 
         <div class="form-group">
-          <label for="user">Usuário</label>
-          <select id="user" v-model="form.user">
-            <option value="">Nenhum</option>
-            <option v-for="user in users" :key="user._id" :value="user._id">
-              {{ user.name }} ({{ user.email }})
-            </option>
-          </select>
-        </div>
-
-        <div class="form-group">
           <label for="mood">Humor</label>
           <select id="mood" v-model="form.mood">
             <option value="Ótimo">Ótimo</option>
@@ -139,7 +129,6 @@ const today = () => new Date().toISOString().slice(0, 10);
 const emptyForm = () => ({
   date: today(),
   habit: '',
-  user: '',
   category: '',
   status: 'Pendente',
   completedAt: '',
@@ -155,7 +144,6 @@ export default {
       routines: [],
       habits: [],
       categories: [],
-      users: [],
       form: emptyForm(),
       editingId: null,
       loading: false,
@@ -173,14 +161,12 @@ export default {
     async fetchOptions() {
       this.loadingOptions = true;
       try {
-        const [habits, categories, users] = await Promise.all([
+        const [habits, categories] = await Promise.all([
           axiosInstance.get('/habits'),
-          axiosInstance.get('/habit-categories'),
-          axiosInstance.get('/users')
+          axiosInstance.get('/habit-categories')
         ]);
         this.habits = habits.data;
         this.categories = categories.data;
-        this.users = users.data;
       } catch (error) {
         this.errorMessage = error.response?.data?.error || 'Não foi possível carregar as opções da rotina.';
       } finally {
@@ -207,7 +193,6 @@ export default {
         dateString: this.form.date,
         date: this.form.date,
         completedAt: this.form.completedAt || null,
-        user: this.form.user || null,
         category: this.form.category || null
       };
 
@@ -232,7 +217,6 @@ export default {
       this.form = {
         date: routine.dateString || today(),
         habit: routine.habit?._id || routine.habit || '',
-        user: routine.user?._id || routine.user || '',
         category: routine.category?._id || routine.category || '',
         status: routine.status || 'Pendente',
         completedAt: routine.completedAt || '',
@@ -274,8 +258,9 @@ export default {
 button { border: 0; border-radius: 6px; color: #fff; padding: 8px 14px; cursor: pointer; font-weight: 600; }
 .btn-primary { background: #42b983; } .btn-secondary { background: #94a3b8; } .btn-edit { background: #3b82f6; } .btn-delete { background: #ef4444; }
 button:disabled { opacity: .6; cursor: not-allowed; }
-.routine-table { width: 100%; border-collapse: collapse; margin-top: 12px; }
-.routine-table th, .routine-table td { border-bottom: 1px solid #e2e8f0; padding: 12px 10px; text-align: left; }
+.routine-table { width: 100%; table-layout: fixed; border-collapse: collapse; margin-top: 12px; }
+.routine-table th, .routine-table td { border-bottom: 1px solid #e2e8f0; padding: 12px 10px; text-align: left; overflow-wrap: anywhere; word-break: break-word; }
+.routine-table th:last-child, .routine-table td:last-child { width: 140px; }
 .routine-table .actions-cell { white-space: nowrap; vertical-align: middle; }
 .routine-table .actions-cell button + button { margin-left: 8px; }
 .routine-table small { display: block; color: #64748b; margin-top: 4px; }

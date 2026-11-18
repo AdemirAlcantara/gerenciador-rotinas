@@ -37,12 +37,6 @@ router.get('/habits/:id', HabitController.findById);
 router.put('/habits/:id', HabitController.update);
 router.delete('/habits/:id', HabitController.delete);
 
-// User
-router.get('/users', UserController.findAll);
-router.get('/users/:id', UserController.findById);
-router.put('/users/:id', UserController.update);
-router.delete('/users/:id', UserController.delete);
-
 // Routine
 router.post('/routines', RoutineController.create);
 router.get('/routines', RoutineController.findAll);
