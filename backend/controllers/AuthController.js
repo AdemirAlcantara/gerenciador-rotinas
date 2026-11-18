@@ -1,6 +1,8 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
+import HabitCheckIn from '../models/HabitCheckIn.js';
+import { formatDateString } from '../utils/utils.js';
 
 const getJwtSecret = () => {
     if (!process.env.JWT_SECRET) {
@@ -37,11 +39,30 @@ class AuthController {
                 return res.status(401).json({ error: 'E-mail ou senha inválidos' });
             }
 
+            const today = formatDateString(new Date());
+            let dailyCheckIns = null;
+            if (user.lastHabitCheckInGeneratedDate !== today) {
+                try {
+                    dailyCheckIns = await HabitCheckIn.generateDailyForUser(user._id, new Date());
+                    await User.updateLastHabitCheckInGeneratedDate(user._id, today);
+                    user.lastHabitCheckInGeneratedDate = today;
+                } catch (error) {
+                    console.error('Erro ao gerar check-ins diários no login:', error.message);
+                }
+            } else {
+                dailyCheckIns = {
+                    dateString: today,
+                    createdCount: 0,
+                    alreadyGenerated: true,
+                    totalForDay: (await HabitCheckIn.findByDate(today, user._id)).length
+                };
+            }
+
             const token = jwt.sign({ id: user._id.toString() }, getJwtSecret(), { expiresIn: '8h' });
             const userResponse = user.toObject();
             delete userResponse.password;
 
-            return res.status(200).json({ token, user: userResponse });
+            return res.status(200).json({ token, user: userResponse, dailyCheckIns });
         } catch (error) {
             return res.status(500).json({ error: error.message });
         }

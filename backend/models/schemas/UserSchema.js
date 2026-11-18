@@ -12,6 +12,12 @@ const UserSchema = new mongoose.Schema(
             match: [/^[^\s@]+@[^\s@]+\.[^\s@]+$/, 'Formato de e-mail inválido']
         },
         password: { type: String, required: true },
+        lastHabitCheckInGeneratedDate: {
+            type: String,
+            required: false,
+            default: null,
+            match: [/^\d{4}-\d{2}-\d{2}$/, 'Formato de data inválido (esperado YYYY-MM-DD)']
+        },
         bio: { type: String, required: false, default: '' },
         productivityGoals: {
             dailyHabitsTarget: { type: Number, default: 3, min: 0 },

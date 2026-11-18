@@ -38,6 +38,7 @@ router.put('/habits/:id', HabitController.update);
 router.delete('/habits/:id', HabitController.delete);
 
 // Habit check-ins
+router.post('/habit-check-ins/generate-daily', HabitCheckInController.generateDaily);
 router.post('/habit-check-ins', HabitCheckInController.create);
 router.get('/habit-check-ins', HabitCheckInController.findAll);
 router.get('/habit-check-ins/:id', HabitCheckInController.findById);

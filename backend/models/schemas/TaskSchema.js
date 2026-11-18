@@ -11,25 +11,7 @@ const TaskSchema = new mongoose.Schema(
             default: () => formatDateString(new Date()),
             match: [/^\d{4}-\d{2}-\d{2}$/, 'Formato de data inválido (esperado YYYY-MM-DD)']
         },
-        timeBlock: {
-            type: String,
-            enum: ['Manha', 'Tarde', 'Noite', 'Qualquer'],
-            default: 'Qualquer',
-            required: true
-        },
         targetTime: {
-            type: String,
-            match: [/^([01]\d|2[0-3]):([0-5]\d)$/, 'Formato de horário inválido (esperado HH:mm)'],
-            required: false,
-            default: null
-        },
-        startTime: {
-            type: String,
-            match: [/^([01]\d|2[0-3]):([0-5]\d)$/, 'Formato de horário inválido (esperado HH:mm)'],
-            required: false,
-            default: null
-        },
-        endTime: {
             type: String,
             match: [/^([01]\d|2[0-3]):([0-5]\d)$/, 'Formato de horário inválido (esperado HH:mm)'],
             required: false,
@@ -37,7 +19,7 @@ const TaskSchema = new mongoose.Schema(
         },
         status: {
             type: String,
-            enum: ['Pendente', 'Em Andamento', 'Concluída', 'Cancelada'],
+            enum: ['Pendente', 'Em Andamento', 'Concluída', 'Cancelada', 'Não realizada'],
             default: 'Pendente'
         },
         priority: {
@@ -51,12 +33,6 @@ const TaskSchema = new mongoose.Schema(
         },
         notifiedAt: {
             type: Date,
-            default: null
-        },
-        habitCheckIn: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'HabitCheckIn',
-            required: false,
             default: null
         },
         category: {
@@ -75,15 +51,6 @@ const TaskSchema = new mongoose.Schema(
         timestamps: true,
     }
 );
-
-TaskSchema.pre('save', function () {
-    if (!this.targetTime && this.startTime) {
-        this.targetTime = this.startTime;
-    }
-    if (!this.startTime && this.targetTime) {
-        this.startTime = this.targetTime;
-    }
-});
 
 const TaskModel = mongoose.model('Task', TaskSchema);
 

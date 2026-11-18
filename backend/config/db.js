@@ -75,10 +75,9 @@ class Database {
                 await conn.connection.db.collection('routines').rename('habitcheckins');
             }
             await conn.connection.db.collection('tasks').updateMany(
-                { routine: { $exists: true } },
+                {},
                 [
-                    { $set: { habitCheckIn: '$routine' } },
-                    { $unset: 'routine' }
+                    { $unset: ['timeBlock', 'startTime', 'endTime', 'habitCheckIn', 'routine'] }
                 ]
             );
 

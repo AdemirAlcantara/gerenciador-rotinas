@@ -24,28 +24,8 @@
 
       <div class="form-grid">
         <div class="form-group">
-          <label for="timeBlock">Período *</label>
-          <select id="timeBlock" v-model="form.timeBlock" required>
-            <option value="Qualquer">Qualquer</option>
-            <option value="Manha">Manhã</option>
-            <option value="Tarde">Tarde</option>
-            <option value="Noite">Noite</option>
-          </select>
-        </div>
-
-        <div class="form-group">
           <label for="targetTime">Horário alvo</label>
           <input id="targetTime" v-model="form.targetTime" type="time" />
-        </div>
-
-        <div class="form-group">
-          <label for="startTime">Início</label>
-          <input id="startTime" v-model="form.startTime" type="time" />
-        </div>
-
-        <div class="form-group">
-          <label for="endTime">Fim</label>
-          <input id="endTime" v-model="form.endTime" type="time" />
         </div>
 
         <div class="form-group">
@@ -55,6 +35,7 @@
             <option value="Em Andamento">Em Andamento</option>
             <option value="Concluída">Concluída</option>
             <option value="Cancelada">Cancelada</option>
+            <option value="Não realizada">Não realizada</option>
           </select>
         </div>
 
@@ -69,16 +50,6 @@
       </div>
 
       <div class="form-grid">
-        <div class="form-group">
-          <label for="habitCheckIn">Check-in</label>
-          <select id="habitCheckIn" v-model="form.habitCheckIn">
-            <option value="">Nenhuma</option>
-            <option v-for="checkIn in habitCheckIns" :key="checkIn._id" :value="checkIn._id">
-              {{ habitCheckInLabel(checkIn) }}
-            </option>
-          </select>
-        </div>
-
         <div class="form-group">
           <label for="category">Categoria</label>
           <select id="category" v-model="form.category">
@@ -113,7 +84,6 @@
           <tr>
             <th>Tarefa</th>
             <th>Data</th>
-            <th>Período</th>
             <th>Horário</th>
             <th>Status</th>
             <th>Prioridade</th>
@@ -127,8 +97,7 @@
               <small v-if="task.description">{{ task.description }}</small>
             </td>
             <td>{{ task.dueDate }}</td>
-            <td>{{ timeBlockLabel(task.timeBlock) }}</td>
-            <td>{{ task.targetTime || task.startTime || '—' }}</td>
+            <td>{{ task.targetTime || '—' }}</td>
             <td>{{ task.status }}</td>
             <td>{{ task.priority }}</td>
             <td class="actions-cell">
@@ -150,13 +119,9 @@ const emptyForm = () => ({
   title: '',
   description: '',
   dueDate: today(),
-  timeBlock: 'Qualquer',
   targetTime: '',
-  startTime: '',
-  endTime: '',
   status: 'Pendente',
   priority: 'Média',
-  habitCheckIn: '',
   category: ''
 });
 
@@ -165,7 +130,6 @@ export default {
   data() {
     return {
       tasks: [],
-      habitCheckIns: [],
       categories: [],
       form: emptyForm(),
       editingId: null,
@@ -184,11 +148,7 @@ export default {
     async fetchOptions() {
       this.loadingOptions = true;
       try {
-        const [habitCheckIns, categories] = await Promise.all([
-          axiosInstance.get('/habit-check-ins'),
-          axiosInstance.get('/habit-categories')
-        ]);
-        this.habitCheckIns = habitCheckIns.data;
+        const categories = await axiosInstance.get('/habit-categories');
         this.categories = categories.data;
       } catch (error) {
         this.errorMessage = error.response?.data?.error || 'Não foi possível carregar as opções da tarefa.';
@@ -214,9 +174,6 @@ export default {
       const payload = {
         ...this.form,
         targetTime: this.form.targetTime || null,
-        startTime: this.form.startTime || null,
-        endTime: this.form.endTime || null,
-        habitCheckIn: this.form.habitCheckIn || null,
         category: this.form.category || null
       };
 
@@ -242,13 +199,9 @@ export default {
         title: task.title,
         description: task.description || '',
         dueDate: task.dueDate || today(),
-        timeBlock: task.timeBlock || 'Qualquer',
         targetTime: task.targetTime || '',
-        startTime: task.startTime || '',
-        endTime: task.endTime || '',
         status: task.status || 'Pendente',
         priority: task.priority || 'Média',
-        habitCheckIn: task.habitCheckIn?._id || task.habitCheckIn || '',
         category: task.category?._id || task.category || ''
       };
       this.errorMessage = '';
@@ -270,12 +223,6 @@ export default {
       this.editingId = null;
       this.form = emptyForm();
     },
-    habitCheckInLabel(checkIn) {
-      return `${checkIn.habit?.habit || 'Check-in'} - ${checkIn.dateString || ''}`;
-    },
-    timeBlockLabel(timeBlock) {
-      return { Manha: 'Manhã', Tarde: 'Tarde', Noite: 'Noite', Qualquer: 'Qualquer' }[timeBlock] || timeBlock;
-    }
   }
 };
 </script>

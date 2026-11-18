@@ -1,8 +1,21 @@
 import HabitCheckIn from '../models/HabitCheckIn.js';
 import Habit from '../models/Habit.js';
 import HabitCategory from '../models/HabitCategory.js';
+import User from '../models/User.js';
+import { formatDateString } from '../utils/utils.js';
 
 class HabitCheckInController {
+
+    static async generateDaily(req, res) {
+        try {
+            const today = new Date();
+            const result = await HabitCheckIn.generateDailyForUser(req.user.id, today);
+            await User.updateLastHabitCheckInGeneratedDate(req.user.id, formatDateString(today));
+            return res.status(200).json(result);
+        } catch (error) {
+            return res.status(500).json({ error: error.message });
+        }
+    }
 
     static async create(req, res) {
         try {

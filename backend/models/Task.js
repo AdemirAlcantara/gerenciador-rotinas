@@ -4,19 +4,15 @@ import { formatDateString, formatTimeHHmm } from '../utils/utils.js';
 
 class Task {
 
-    constructor({ title, description, dueDate, timeBlock, targetTime, startTime, endTime, status, priority, notified, notifiedAt, habitCheckIn, category, user }) {
+    constructor({ title, description, dueDate, targetTime, status, priority, notified, notifiedAt, category, user }) {
         this.title = title;
         this.description = description;
         this.dueDate = dueDate || formatDateString(new Date());
-        this.timeBlock = timeBlock;
-        this.targetTime = targetTime || startTime || null;
-        this.startTime = startTime || targetTime || null;
-        this.endTime = endTime;
+        this.targetTime = targetTime || null;
         this.status = status;
         this.priority = priority;
         this.notified = notified ?? false;
         this.notifiedAt = notifiedAt ?? null;
-        this.habitCheckIn = habitCheckIn;
         this.category = category;
         this.user = user;
     }
@@ -26,15 +22,11 @@ class Task {
             title: this.title,
             description: this.description,
             dueDate: this.dueDate,
-            timeBlock: this.timeBlock,
             targetTime: this.targetTime,
-            startTime: this.startTime,
-            endTime: this.endTime,
             status: this.status,
             priority: this.priority,
             notified: this.notified,
             notifiedAt: this.notifiedAt,
-            habitCheckIn: this.habitCheckIn,
             category: this.category,
             user: this.user
         });
@@ -44,7 +36,6 @@ class Task {
 
     static async findAll() {
         return await TaskModel.find()
-            .populate('habitCheckIn')
             .populate('category')
             .populate('user', '-password')
             .sort({ dueDate: -1, targetTime: 1, title: 1 });
@@ -55,33 +46,12 @@ class Task {
             return null;
         }
         return await TaskModel.findById(id)
-            .populate('habitCheckIn')
             .populate('category')
             .populate('user', '-password');
     }
 
-    static async findByHabitCheckIn(habitCheckInId) {
-        if (!mongoose.Types.ObjectId.isValid(habitCheckInId)) {
-            return [];
-        }
-        return await TaskModel.find({ habitCheckIn: habitCheckInId })
-            .populate('habitCheckIn')
-            .populate('category')
-            .populate('user', '-password')
-            .sort({ targetTime: 1, title: 1 });
-    }
-
-    static async findByTimeBlock(timeBlock) {
-        return await TaskModel.find({ timeBlock })
-            .populate('habitCheckIn')
-            .populate('category')
-            .populate('user', '-password')
-            .sort({ targetTime: 1, title: 1 });
-    }
-
     static async findByStatus(status) {
         return await TaskModel.find({ status })
-            .populate('habitCheckIn')
             .populate('category')
             .populate('user', '-password')
             .sort({ targetTime: 1, title: 1 });
@@ -92,7 +62,6 @@ class Task {
             return [];
         }
         return await TaskModel.find({ user: userId })
-            .populate('habitCheckIn')
             .populate('category')
             .populate('user', '-password')
             .sort({ dueDate: -1, targetTime: 1, title: 1 });
@@ -118,7 +87,6 @@ class Task {
         }
 
         return await TaskModel.find(query)
-            .populate('habitCheckIn')
             .populate('category')
             .populate('user', '-password')
             .sort({ targetTime: 1 });
@@ -133,38 +101,30 @@ class Task {
             { notified: true, notifiedAt: new Date() },
             { new: true }
         )
-            .populate('habitCheckIn')
             .populate('category')
             .populate('user', '-password');
     }
 
-    static async update(id, { title, description, dueDate, timeBlock, targetTime, startTime, endTime, status, priority, notified, notifiedAt, habitCheckIn, category, user }) {
+    static async update(id, { title, description, dueDate, targetTime, status, priority, notified, notifiedAt, category, user }) {
         if (!mongoose.Types.ObjectId.isValid(id)) {
             return null;
         }
-        const resolvedTargetTime = targetTime || startTime || null;
-        const resolvedStartTime = startTime || targetTime || null;
         return await TaskModel.findByIdAndUpdate(
             id,
             {
                 title,
                 description,
                 dueDate,
-                timeBlock,
-                targetTime: resolvedTargetTime,
-                startTime: resolvedStartTime,
-                endTime,
+                targetTime: targetTime || null,
                 status,
                 priority,
                 notified,
                 notifiedAt,
-                habitCheckIn,
                 category,
                 user
             },
             { new: true, runValidators: true }
         )
-            .populate('habitCheckIn')
             .populate('category')
             .populate('user', '-password');
     }

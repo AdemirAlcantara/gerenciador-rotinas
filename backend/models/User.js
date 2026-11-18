@@ -3,13 +3,14 @@ import UserModel from './schemas/UserSchema.js';
 
 class User {
 
-    constructor({ name, email, password, bio, productivityGoals, preferences }) {
+    constructor({ name, email, password, bio, productivityGoals, preferences, lastHabitCheckInGeneratedDate }) {
         this.name = name;
         this.email = email;
         this.password = password;
         this.bio = bio;
         this.productivityGoals = productivityGoals;
         this.preferences = preferences;
+        this.lastHabitCheckInGeneratedDate = lastHabitCheckInGeneratedDate || null;
     }
 
     async save() {
@@ -19,7 +20,8 @@ class User {
             password: this.password,
             bio: this.bio,
             productivityGoals: this.productivityGoals,
-            preferences: this.preferences
+            preferences: this.preferences,
+            lastHabitCheckInGeneratedDate: this.lastHabitCheckInGeneratedDate
         });
 
         return await newUser.save();
@@ -78,6 +80,17 @@ class User {
             return null;
         }
         return await UserModel.findByIdAndUpdate(id, { password }, { new: true }).select('-password');
+    }
+
+    static async updateLastHabitCheckInGeneratedDate(id, dateString) {
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return null;
+        }
+        return await UserModel.findByIdAndUpdate(
+            id,
+            { lastHabitCheckInGeneratedDate: dateString },
+            { new: true, runValidators: true }
+        ).select('-password');
     }
 
 }
