@@ -29,11 +29,15 @@ class HabitCheckInController {
     static async create(req, res) {
         try {
             const { date, habit, status, completedAt, mood, notes } = req.body;
-            if (habit) {
-                const ownedHabit = await Habit.findById(habit);
-                if (!ownedHabit || (ownedHabit.user?._id || ownedHabit.user)?.toString() !== req.user.id) {
-                    return res.status(400).json({ error: 'Hábito inválido para o usuário atual' });
-                }
+            if (!habit) {
+                return res.status(400).json({ error: 'Selecione um hábito ativo para o check-in' });
+            }
+            const ownedHabit = await Habit.findById(habit);
+            if (!ownedHabit || (ownedHabit.user?._id || ownedHabit.user)?.toString() !== req.user.id) {
+                return res.status(400).json({ error: 'Hábito inválido para o usuário atual' });
+            }
+            if (!ownedHabit.active) {
+                return res.status(400).json({ error: 'Não é possível registrar check-in em um hábito inativo' });
             }
             const dateString = req.body.dateString || (date ? formatDateString(new Date(date)) : formatDateString(new Date()));
             const futureDateError = HabitCheckInController.validateFutureDate(dateString);
@@ -68,6 +72,10 @@ class HabitCheckInController {
             let habitCheckIns = history === 'true'
                 ? await HabitCheckIn.findByUser(req.user.id)
                 : await HabitCheckIn.findLatestByUser(req.user.id);
+
+            if (history !== 'true') {
+                habitCheckIns = habitCheckIns.filter((checkIn) => checkIn.habit?.active !== false);
+            }
 
             if (date) {
                 habitCheckIns = habitCheckIns.filter((checkIn) => checkIn.dateString === date);
@@ -116,6 +124,11 @@ class HabitCheckInController {
                 if (!ownedHabit || (ownedHabit.user?._id || ownedHabit.user)?.toString() !== req.user.id) {
                     return res.status(400).json({ error: 'Hábito inválido para o usuário atual' });
                 }
+                if (!ownedHabit.active) {
+                    return res.status(400).json({ error: 'Não é possível editar check-in de um hábito inativo' });
+                }
+            } else if (!existing.habit?.active) {
+                return res.status(400).json({ error: 'Não é possível editar check-in de um hábito inativo' });
             }
             const dateString = req.body.dateString || (req.body.date ? formatDateString(new Date(req.body.date)) : existing.dateString);
             const futureDateError = HabitCheckInController.validateFutureDate(dateString);

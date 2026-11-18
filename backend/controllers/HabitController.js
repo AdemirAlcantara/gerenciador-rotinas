@@ -41,10 +41,11 @@ class HabitController {
 
     static async findAll(req, res) {
         try {
-            const { category, frequency } = req.query;
+            const { category, frequency, active } = req.query;
             const filter = { user: req.user.id };
             if (category) filter.category = category;
             if (frequency) filter.frequency = frequency;
+            if (active === 'true') filter.active = true;
             const habits = await Habit.findAll(filter);
 
             return res.status(200).json(habits);

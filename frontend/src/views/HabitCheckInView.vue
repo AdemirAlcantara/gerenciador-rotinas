@@ -161,7 +161,7 @@ export default {
       this.loadingOptions = true;
       try {
         const [habits] = await Promise.all([
-          axiosInstance.get('/habits')
+          axiosInstance.get('/habits', { params: { active: true } })
         ]);
         this.habits = habits.data;
       } catch (error) {
