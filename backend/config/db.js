@@ -6,6 +6,7 @@ import HabitCategoryModel from '../models/schemas/HabitCategorySchema.js';
 import HabitModel from '../models/schemas/HabitSchema.js';
 import HabitCheckInModel from '../models/schemas/HabitCheckInSchema.js';
 import TaskModel from '../models/schemas/TaskSchema.js';
+import NotificationModel from '../models/schemas/NotificationSchema.js';
 
 dotenv.config({ path: path.join(__dirname, '.env') });
 
@@ -80,12 +81,21 @@ class Database {
                     { $unset: ['timeBlock', 'startTime', 'endTime', 'habitCheckIn', 'routine'] }
                 ]
             );
+            await conn.connection.db.collection('habits').updateMany(
+                {},
+                { $unset: { period: '' } }
+            );
+            await conn.connection.db.collection('habitcheckins').updateMany(
+                {},
+                { $unset: { category: '', energyLevel: '' } }
+            );
 
             await this.migrateOrphanedOwnership(conn.connection.db);
             await HabitCategoryModel.syncIndexes();
             await HabitModel.syncIndexes();
             await HabitCheckInModel.syncIndexes();
             await TaskModel.syncIndexes();
+            await NotificationModel.syncIndexes();
 
             console.log(`MongoDB conectado com sucesso: ${conn.connection.host} (Database: ${conn.connection.name})`);
             return conn;

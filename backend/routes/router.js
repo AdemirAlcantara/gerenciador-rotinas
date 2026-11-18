@@ -6,6 +6,7 @@ import HabitCheckInController from '../controllers/HabitCheckInController.js';
 import TaskController from '../controllers/TaskController.js';
 import AuthController from '../controllers/AuthController.js';
 import authMiddleware from '../middlewares/authMiddleware.js';
+import NotificationController from '../controllers/NotificationController.js';
 
 const router = Router();
 
@@ -51,6 +52,11 @@ router.get('/tasks', TaskController.findAll);
 router.get('/tasks/:id', TaskController.findById);
 router.put('/tasks/:id', TaskController.update);
 router.delete('/tasks/:id', TaskController.delete);
+
+// Notifications
+router.post('/notifications/generate', NotificationController.generate);
+router.get('/notifications', NotificationController.findAll);
+router.patch('/notifications/:id/read', NotificationController.markAsRead);
 
 export default router;
 

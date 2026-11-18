@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 import HabitCheckIn from '../models/HabitCheckIn.js';
 import { formatDateString } from '../utils/utils.js';
+import Notification from '../models/Notification.js';
 
 const getJwtSecret = () => {
     if (!process.env.JWT_SECRET) {
@@ -58,11 +59,20 @@ class AuthController {
                 };
             }
 
+            let notifications = null;
+            try {
+                const now = new Date();
+                await Notification.markOverdueTasksForUser(user._id, now);
+                notifications = await Notification.generateForUser(user._id, now, formatDateString);
+            } catch (error) {
+                console.error('Erro ao gerar notificações de tarefas no login:', error.message);
+            }
+
             const token = jwt.sign({ id: user._id.toString() }, getJwtSecret(), { expiresIn: '8h' });
             const userResponse = user.toObject();
             delete userResponse.password;
 
-            return res.status(200).json({ token, user: userResponse, dailyCheckIns });
+            return res.status(200).json({ token, user: userResponse, dailyCheckIns, notifications });
         } catch (error) {
             return res.status(500).json({ error: error.message });
         }

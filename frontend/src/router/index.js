@@ -8,6 +8,7 @@ import HabitCheckInView from '../views/HabitCheckInView.vue'
 import LoginView from '../views/LoginView.vue'
 import AccountView from '../views/AccountView.vue'
 import RegisterView from '../views/RegisterView.vue'
+import NotificationView from '../views/NotificationView.vue'
 
 const routes = [
   {
@@ -48,6 +49,12 @@ const routes = [
     path: '/tasks',
     name: 'tasks',
     component: TaskView,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/notifications',
+    name: 'notifications',
+    component: NotificationView,
     meta: { requiresAuth: true }
   },
   {

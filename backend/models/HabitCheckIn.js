@@ -5,17 +5,15 @@ import { formatDateString, formatTimeHHmm } from '../utils/utils.js';
 
 class HabitCheckIn {
 
-    constructor({ date, dateString, habit, user, category, status, completedAt, mood, energyLevel, notes }) {
+    constructor({ date, dateString, habit, user, status, completedAt, mood, notes }) {
         const resolvedDate = date ? new Date(date) : new Date();
         this.date = resolvedDate;
         this.dateString = dateString || formatDateString(resolvedDate);
         this.habit = habit;
         this.user = user;
-        this.category = category;
         this.status = status;
         this.completedAt = completedAt;
         this.mood = mood;
-        this.energyLevel = energyLevel;
         this.notes = notes;
     }
 
@@ -25,11 +23,9 @@ class HabitCheckIn {
             dateString: this.dateString,
             habit: this.habit,
             user: this.user,
-            category: this.category,
             status: this.status,
             completedAt: this.completedAt,
             mood: this.mood,
-            energyLevel: this.energyLevel,
             notes: this.notes
         });
 
@@ -39,7 +35,6 @@ class HabitCheckIn {
     static async findAll() {
         return await HabitCheckInModel.find()
             .populate({ path: 'habit', populate: { path: 'category' } })
-            .populate('category')
             .populate('user', '-password')
             .sort({ dateString: -1, completedAt: 1 });
     }
@@ -50,7 +45,6 @@ class HabitCheckIn {
         }
         return await HabitCheckInModel.findById(id)
             .populate({ path: 'habit', populate: { path: 'category' } })
-            .populate('category')
             .populate('user', '-password');
     }
 
@@ -66,7 +60,6 @@ class HabitCheckIn {
 
         return await HabitCheckInModel.find(query)
             .populate({ path: 'habit', populate: { path: 'category' } })
-            .populate('category')
             .populate('user', '-password')
             .sort({ completedAt: 1 });
     }
@@ -77,7 +70,6 @@ class HabitCheckIn {
         }
         return await HabitCheckInModel.find({ user: userId })
             .populate({ path: 'habit', populate: { path: 'category' } })
-            .populate('category')
             .populate('user', '-password')
             .sort({ dateString: -1 });
     }
@@ -89,12 +81,11 @@ class HabitCheckIn {
         }
         return await HabitCheckInModel.find(query)
             .populate({ path: 'habit', populate: { path: 'category' } })
-            .populate('category')
             .populate('user', '-password')
             .sort({ dateString: -1 });
     }
 
-    static async update(id, { date, dateString, habit, user, category, status, completedAt, mood, energyLevel, notes }) {
+    static async update(id, { date, dateString, habit, user, status, completedAt, mood, notes }) {
         if (!mongoose.Types.ObjectId.isValid(id)) {
             return null;
         }
@@ -110,17 +101,14 @@ class HabitCheckIn {
                 dateString,
                 habit,
                 user,
-                category,
                 status,
                 completedAt: resolvedCompletedAt,
                 mood,
-                energyLevel,
                 notes
             },
             { new: true, runValidators: true }
         )
             .populate({ path: 'habit', populate: { path: 'category' } })
-            .populate('category')
             .populate('user', '-password');
     }
 
@@ -146,7 +134,6 @@ class HabitCheckIn {
 
         const operations = activeHabits.map((h) => {
             const habitUserId = userId || h.user?._id || h.user || null;
-            const categoryId = h.category?._id || h.category || null;
             return {
                 updateOne: {
                     filter: {
@@ -160,11 +147,9 @@ class HabitCheckIn {
                             dateString,
                             habit: h._id,
                             user: habitUserId,
-                            category: categoryId,
                             status: 'Pendente',
                             completedAt: null,
                             mood: 'Neutro',
-                            energyLevel: 'Média',
                             notes: ''
                         }
                     },
@@ -291,12 +276,10 @@ class HabitCheckIn {
             });
         }
 
-        // Resumo de humor e energia
+        // Resumo de humor
         const moodDistribution = {};
-        const energyDistribution = {};
         for (const rec of monthlyRecords) {
             if (rec.mood) moodDistribution[rec.mood] = (moodDistribution[rec.mood] || 0) + 1;
-            if (rec.energyLevel) energyDistribution[rec.energyLevel] = (energyDistribution[rec.energyLevel] || 0) + 1;
         }
 
         return {
@@ -304,8 +287,7 @@ class HabitCheckIn {
             weeklyAdherence,
             monthlyAdherence,
             habitStreaks,
-            moodDistribution,
-            energyDistribution
+            moodDistribution
         };
     }
 

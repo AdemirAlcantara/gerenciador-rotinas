@@ -24,12 +24,6 @@ const HabitCheckInSchema = new mongoose.Schema(
             ref: 'User',
             required: true
         },
-        category: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'HabitCategory',
-            required: false,
-            default: null
-        },
         status: {
             type: String,
             enum: ['Pendente', 'Concluído', 'Pulado'],
@@ -46,11 +40,6 @@ const HabitCheckInSchema = new mongoose.Schema(
             type: String,
             enum: ['Ótimo', 'Bom', 'Neutro', 'Cansado', 'Estressado'],
             default: 'Neutro'
-        },
-        energyLevel: {
-            type: String,
-            enum: ['Alta', 'Média', 'Baixa'],
-            default: 'Média'
         },
         notes: {
             type: String,

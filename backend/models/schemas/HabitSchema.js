@@ -41,11 +41,6 @@ const HabitSchema = new mongoose.Schema(
             required: false,
             default: null
         },
-        period: {
-            type: String,
-            enum: ['Manha', 'Tarde', 'Noite', 'Qualquer'],
-            default: 'Qualquer'
-        },
         category: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'HabitCategory',

@@ -12,7 +12,6 @@ class HabitController {
                 daysOfWeek,
                 dayOfMonth,
                 targetTime,
-                period,
                 category,
                 active
             } = req.body;
@@ -29,7 +28,6 @@ class HabitController {
                 daysOfWeek,
                 dayOfMonth,
                 targetTime,
-                period,
                 category,
                 user: req.user.id,
                 active
@@ -43,11 +41,10 @@ class HabitController {
 
     static async findAll(req, res) {
         try {
-            const { category, frequency, period } = req.query;
+            const { category, frequency } = req.query;
             const filter = { user: req.user.id };
             if (category) filter.category = category;
             if (frequency) filter.frequency = frequency;
-            if (period) filter.period = period;
             const habits = await Habit.findAll(filter);
 
             return res.status(200).json(habits);

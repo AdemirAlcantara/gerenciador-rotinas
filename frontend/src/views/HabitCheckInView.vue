@@ -38,16 +38,6 @@
 
       <div class="form-grid">
         <div class="form-group">
-          <label for="category">Categoria</label>
-          <select id="category" v-model="form.category">
-            <option value="">Nenhuma</option>
-            <option v-for="category in categories" :key="category._id" :value="category._id">
-              {{ category.category }}
-            </option>
-          </select>
-        </div>
-
-        <div class="form-group">
           <label for="mood">Humor</label>
           <select id="mood" v-model="form.mood">
             <option value="Ótimo">Ótimo</option>
@@ -58,14 +48,6 @@
           </select>
         </div>
 
-        <div class="form-group">
-          <label for="energyLevel">Energia</label>
-          <select id="energyLevel" v-model="form.energyLevel">
-            <option value="Alta">Alta</option>
-            <option value="Média">Média</option>
-            <option value="Baixa">Baixa</option>
-          </select>
-        </div>
       </div>
 
       <div class="form-group">
@@ -97,7 +79,6 @@
             <th>Hábito</th>
             <th>Status</th>
             <th>Humor</th>
-            <th>Energia</th>
             <th>Ações</th>
           </tr>
         </thead>
@@ -110,7 +91,6 @@
             </td>
             <td>{{ checkIn.status }}</td>
             <td>{{ checkIn.mood }}</td>
-            <td>{{ checkIn.energyLevel }}</td>
             <td class="actions-cell">
               <button class="btn-edit" @click="startEdit(checkIn)">Editar</button>
               <button class="btn-delete" @click="handleDelete(checkIn._id)">Excluir</button>
@@ -129,11 +109,9 @@ const today = () => new Date().toISOString().slice(0, 10);
 const emptyForm = () => ({
   date: today(),
   habit: '',
-  category: '',
   status: 'Pendente',
   completedAt: '',
   mood: 'Neutro',
-  energyLevel: 'Média',
   notes: ''
 });
 
@@ -143,7 +121,6 @@ export default {
     return {
       habitCheckIns: [],
       habits: [],
-      categories: [],
       form: emptyForm(),
       editingId: null,
       loading: false,
@@ -161,12 +138,10 @@ export default {
     async fetchOptions() {
       this.loadingOptions = true;
       try {
-        const [habits, categories] = await Promise.all([
-          axiosInstance.get('/habits'),
-          axiosInstance.get('/habit-categories')
+        const [habits] = await Promise.all([
+          axiosInstance.get('/habits')
         ]);
         this.habits = habits.data;
-        this.categories = categories.data;
       } catch (error) {
         this.errorMessage = error.response?.data?.error || 'Não foi possível carregar as opções do check-in.';
       } finally {
@@ -192,8 +167,7 @@ export default {
         ...this.form,
         dateString: this.form.date,
         date: this.form.date,
-        completedAt: this.form.completedAt || null,
-        category: this.form.category || null
+        completedAt: this.form.completedAt || null
       };
 
       try {
@@ -217,11 +191,9 @@ export default {
       this.form = {
         date: checkIn.dateString || today(),
         habit: checkIn.habit?._id || checkIn.habit || '',
-        category: checkIn.category?._id || checkIn.category || '',
         status: checkIn.status || 'Pendente',
         completedAt: checkIn.completedAt || '',
         mood: checkIn.mood || 'Neutro',
-        energyLevel: checkIn.energyLevel || 'Média',
         notes: checkIn.notes || ''
       };
       this.errorMessage = '';

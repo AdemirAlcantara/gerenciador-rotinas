@@ -38,16 +38,6 @@
         </div>
 
         <div class="form-group">
-          <label for="period">Período</label>
-          <select id="period" v-model="form.period">
-            <option value="Qualquer">Qualquer</option>
-            <option value="Manha">Manhã</option>
-            <option value="Tarde">Tarde</option>
-            <option value="Noite">Noite</option>
-          </select>
-        </div>
-
-        <div class="form-group">
           <label for="targetTime">Horário</label>
           <input id="targetTime" v-model="form.targetTime" type="time" />
         </div>
@@ -130,7 +120,6 @@ const emptyForm = () => ({
   daysOfWeek: [0, 1, 2, 3, 4, 5, 6],
   dayOfMonth: null,
   targetTime: '',
-  period: 'Qualquer',
   category: '',
   active: true
 });
@@ -226,7 +215,6 @@ export default {
         daysOfWeek: item.daysOfWeek || [],
         dayOfMonth: item.dayOfMonth,
         targetTime: item.targetTime || '',
-        period: item.period || 'Qualquer',
         category: item.category?._id || item.category,
         active: item.active
       };

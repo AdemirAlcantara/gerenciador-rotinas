@@ -13,6 +13,7 @@
           <router-link to="/habits">Hábitos</router-link>
           <router-link to="/tasks">Tarefas</router-link>
           <router-link to="/habit-check-ins">Check-ins</router-link>
+          <router-link to="/notifications">Notificações</router-link>
         </div>
 
         <div class="nav-user">

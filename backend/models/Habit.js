@@ -3,14 +3,13 @@ import HabitModel from './schemas/HabitSchema.js';
 
 class Habit {
 
-    constructor({ habit, description, frequency, daysOfWeek, dayOfMonth, targetTime, period, category, user, active }) {
+    constructor({ habit, description, frequency, daysOfWeek, dayOfMonth, targetTime, category, user, active }) {
         this.habit = habit;
         this.description = description;
         this.frequency = frequency;
         this.daysOfWeek = daysOfWeek;
         this.dayOfMonth = dayOfMonth;
         this.targetTime = targetTime;
-        this.period = period;
         this.category = category;
         this.user = user;
         this.active = active;
@@ -24,7 +23,6 @@ class Habit {
             daysOfWeek: this.daysOfWeek,
             dayOfMonth: this.dayOfMonth,
             targetTime: this.targetTime,
-            period: this.period,
             category: this.category,
             user: this.user,
             active: this.active
@@ -76,13 +74,6 @@ class Habit {
             .sort({ habit: 1 });
     }
 
-    static async findByPeriod(period) {
-        return await HabitModel.find({ period })
-            .populate('category')
-            .populate('user', '-password')
-            .sort({ habit: 1 });
-    }
-
     static async findActiveForDate(userId = null, date = new Date()) {
         const targetDate = date instanceof Date ? date : new Date(date);
         const dayOfWeek = targetDate.getDay();
@@ -106,13 +97,13 @@ class Habit {
             .sort({ targetTime: 1, habit: 1 });
     }
 
-    static async update(id, { habit, description, frequency, daysOfWeek, dayOfMonth, targetTime, period, category, user, active }) {
+    static async update(id, { habit, description, frequency, daysOfWeek, dayOfMonth, targetTime, category, user, active }) {
         if (!mongoose.Types.ObjectId.isValid(id)) {
             return null;
         }
         return await HabitModel.findByIdAndUpdate(
             id,
-            { habit, description, frequency, daysOfWeek, dayOfMonth, targetTime, period, category, user, active },
+            { habit, description, frequency, daysOfWeek, dayOfMonth, targetTime, category, user, active },
             { new: true, runValidators: true }
         )
             .populate('category')

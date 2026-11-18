@@ -1,6 +1,5 @@
 import HabitCheckIn from '../models/HabitCheckIn.js';
 import Habit from '../models/Habit.js';
-import HabitCategory from '../models/HabitCategory.js';
 import User from '../models/User.js';
 import { formatDateString } from '../utils/utils.js';
 
@@ -19,28 +18,20 @@ class HabitCheckInController {
 
     static async create(req, res) {
         try {
-            const { date, habit, category, status, completedAt, mood, energyLevel, notes } = req.body;
+            const { date, habit, status, completedAt, mood, notes } = req.body;
             if (habit) {
                 const ownedHabit = await Habit.findById(habit);
                 if (!ownedHabit || (ownedHabit.user?._id || ownedHabit.user)?.toString() !== req.user.id) {
                     return res.status(400).json({ error: 'Hábito inválido para o usuário atual' });
                 }
             }
-            if (category) {
-                const ownedCategory = await HabitCategory.findById(category);
-                if (!ownedCategory || (ownedCategory.user?._id || ownedCategory.user)?.toString() !== req.user.id) {
-                    return res.status(400).json({ error: 'Categoria inválida para o usuário atual' });
-                }
-            }
             const newHabitCheckIn = new HabitCheckIn({
                 date,
                 habit,
                 user: req.user.id,
-                category,
                 status,
                 completedAt,
                 mood,
-                energyLevel,
                 notes
             });
             const saved = await newHabitCheckIn.save();
@@ -96,12 +87,6 @@ class HabitCheckInController {
                 const ownedHabit = await Habit.findById(req.body.habit);
                 if (!ownedHabit || (ownedHabit.user?._id || ownedHabit.user)?.toString() !== req.user.id) {
                     return res.status(400).json({ error: 'Hábito inválido para o usuário atual' });
-                }
-            }
-            if (req.body.category) {
-                const ownedCategory = await HabitCategory.findById(req.body.category);
-                if (!ownedCategory || (ownedCategory.user?._id || ownedCategory.user)?.toString() !== req.user.id) {
-                    return res.status(400).json({ error: 'Categoria inválida para o usuário atual' });
                 }
             }
             const updated = await HabitCheckIn.update(req.params.id, {
