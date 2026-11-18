@@ -22,8 +22,7 @@ const HabitCheckInSchema = new mongoose.Schema(
         user: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'User',
-            required: false,
-            default: null
+            required: true
         },
         category: {
             type: mongoose.Schema.Types.ObjectId,
