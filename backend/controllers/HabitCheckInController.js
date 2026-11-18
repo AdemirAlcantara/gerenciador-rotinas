@@ -5,6 +5,16 @@ import { formatDateString } from '../utils/utils.js';
 
 class HabitCheckInController {
 
+    static validateFutureDate(dateString) {
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(dateString)) {
+            return 'Formato de data inválido';
+        }
+        if (dateString > formatDateString(new Date())) {
+            return 'Não é possível criar ou editar um check-in em uma data posterior à atual';
+        }
+        return null;
+    }
+
     static async generateDaily(req, res) {
         try {
             const today = new Date();
@@ -25,8 +35,20 @@ class HabitCheckInController {
                     return res.status(400).json({ error: 'Hábito inválido para o usuário atual' });
                 }
             }
-            const newHabitCheckIn = new HabitCheckIn({
+            const dateString = req.body.dateString || (date ? formatDateString(new Date(date)) : formatDateString(new Date()));
+            const futureDateError = HabitCheckInController.validateFutureDate(dateString);
+            if (futureDateError) {
+                return res.status(400).json({ error: futureDateError });
+            }
+            const existing = await HabitCheckIn.findByUser(req.user.id);
+            const existingForDay = existing.find((checkIn) =>
+                String(checkIn.habit?._id || checkIn.habit) === String(habit) &&
+                checkIn.dateString === dateString
+            );
+
+            const saved = await HabitCheckIn.upsertForUser({
                 date,
+                dateString,
                 habit,
                 user: req.user.id,
                 status,
@@ -34,8 +56,7 @@ class HabitCheckInController {
                 mood,
                 notes
             });
-            const saved = await newHabitCheckIn.save();
-            return res.status(201).json(saved);
+            return res.status(existingForDay ? 200 : 201).json(saved);
         } catch (error) {
             return res.status(400).json({ error: error.message });
         }
@@ -44,7 +65,7 @@ class HabitCheckInController {
     static async findAll(req, res) {
         try {
             const { date, status } = req.query;
-            let habitCheckIns = await HabitCheckIn.findByUser(req.user.id);
+            let habitCheckIns = await HabitCheckIn.findLatestByUser(req.user.id);
 
             if (date) {
                 habitCheckIns = habitCheckIns.filter((checkIn) => checkIn.dateString === date);
@@ -88,6 +109,11 @@ class HabitCheckInController {
                 if (!ownedHabit || (ownedHabit.user?._id || ownedHabit.user)?.toString() !== req.user.id) {
                     return res.status(400).json({ error: 'Hábito inválido para o usuário atual' });
                 }
+            }
+            const dateString = req.body.dateString || (req.body.date ? formatDateString(new Date(req.body.date)) : existing.dateString);
+            const futureDateError = HabitCheckInController.validateFutureDate(dateString);
+            if (futureDateError) {
+                return res.status(400).json({ error: futureDateError });
             }
             const updated = await HabitCheckIn.update(req.params.id, {
                 ...req.body,

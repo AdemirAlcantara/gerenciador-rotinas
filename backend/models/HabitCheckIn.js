@@ -74,6 +74,28 @@ class HabitCheckIn {
             .sort({ dateString: -1 });
     }
 
+    static async findLatestByUser(userId) {
+        if (!mongoose.Types.ObjectId.isValid(userId)) {
+            return [];
+        }
+
+        const records = await HabitCheckInModel.find({ user: userId })
+            .populate({ path: 'habit', populate: { path: 'category' } })
+            .populate('user', '-password')
+            .sort({ dateString: -1, updatedAt: -1 });
+
+        const latestByHabit = new Map();
+        for (const record of records) {
+            const habitId = String(record.habit?._id || record.habit);
+            if (!habitId || latestByHabit.has(habitId)) {
+                continue;
+            }
+            latestByHabit.set(habitId, record);
+        }
+
+        return Array.from(latestByHabit.values());
+    }
+
     static async findByStatus(status, userId = null) {
         const query = { status };
         if (userId && mongoose.Types.ObjectId.isValid(userId)) {
@@ -110,6 +132,86 @@ class HabitCheckIn {
         )
             .populate({ path: 'habit', populate: { path: 'category' } })
             .populate('user', '-password');
+    }
+
+    static async upsertForUser({
+        date,
+        dateString,
+        habit,
+        user,
+        status,
+        completedAt,
+        mood,
+        notes
+    }) {
+        if (!mongoose.Types.ObjectId.isValid(user) || !mongoose.Types.ObjectId.isValid(habit)) {
+            return null;
+        }
+
+        const resolvedDate = date ? new Date(date) : new Date();
+        const resolvedDateString = dateString || formatDateString(resolvedDate);
+        const resolvedCompletedAt = status === 'Concluído' && !completedAt
+            ? formatTimeHHmm(new Date())
+            : (completedAt || null);
+
+        const filter = {
+            user,
+            habit,
+            dateString: resolvedDateString
+        };
+        const update = {
+            date: resolvedDate,
+            dateString: resolvedDateString,
+            habit,
+            user,
+            status: status || 'Pendente',
+            completedAt: resolvedCompletedAt,
+            mood: mood || 'Neutro',
+            notes: notes || ''
+        };
+
+        const existing = await HabitCheckInModel.findOne(filter);
+        if (existing) {
+            return await HabitCheckInModel.findByIdAndUpdate(
+                existing._id,
+                { $set: update },
+                { new: true, runValidators: true }
+            )
+                .populate({ path: 'habit', populate: { path: 'category' } })
+                .populate('user', '-password');
+        }
+
+        try {
+            return await HabitCheckInModel.findOneAndUpdate(
+                filter,
+                { $set: update },
+                {
+                    new: true,
+                    upsert: true,
+                    runValidators: true,
+                    setDefaultsOnInsert: true
+                }
+            )
+                .populate({ path: 'habit', populate: { path: 'category' } })
+                .populate('user', '-password');
+        } catch (error) {
+            if (error?.code !== 11000) {
+                throw error;
+            }
+
+            const concurrentRecord = await HabitCheckInModel.findOne(filter);
+            if (!concurrentRecord) {
+                throw error;
+            }
+
+            return await HabitCheckInModel.findByIdAndUpdate(
+                concurrentRecord._id,
+                { $set: update },
+                { new: true, runValidators: true }
+            )
+                .populate({ path: 'habit', populate: { path: 'category' } })
+                .populate('user', '-password');
+        }
     }
 
     static async delete(id) {

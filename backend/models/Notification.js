@@ -23,6 +23,83 @@ const formatMessage = (task, daysBefore) => {
 
 class Notification {
 
+    static async syncForTask(task, currentDate = new Date()) {
+        if (!task || !task._id || !task.user) {
+            return [];
+        }
+
+        const userId = task.user._id || task.user;
+        const terminalStatuses = ['Concluída', 'Cancelada', 'Não realizada'];
+
+        if (terminalStatuses.includes(task.status)) {
+            await NotificationModel.deleteMany({ task: task._id });
+            return [];
+        }
+
+        const daysUntilDue = dateDifferenceInDays(task.dueDate, currentDate);
+        if (daysUntilDue < 0) {
+            await TaskModel.findByIdAndUpdate(task._id, { status: 'Não realizada' });
+            task.status = 'Não realizada';
+            await NotificationModel.deleteMany({ task: task._id });
+            return [];
+        }
+
+        const notificationDays = notificationDaysByPriority[task.priority] || [];
+        await NotificationModel.deleteMany({
+            task: task._id,
+            $or: [
+                { dueDate: { $ne: task.dueDate } },
+                { daysBefore: { $nin: notificationDays } }
+            ]
+        });
+
+        const existingNotifications = await NotificationModel.find({ task: task._id });
+        await Promise.all(existingNotifications.map((notification) =>
+            NotificationModel.findByIdAndUpdate(notification._id, {
+                message: formatMessage(task, notification.daysBefore)
+            })
+        ));
+
+        if (!notificationDays.includes(daysUntilDue)) {
+            return Notification.findByUser(userId);
+        }
+
+        await NotificationModel.updateMany(
+            { task: task._id, dueDate: task.dueDate, daysBefore: daysUntilDue },
+            { $set: { message: formatMessage(task, daysUntilDue) } }
+        );
+
+        await NotificationModel.updateOne(
+            {
+                user: userId,
+                task: task._id,
+                dueDate: task.dueDate,
+                daysBefore: daysUntilDue
+            },
+            {
+                $setOnInsert: {
+                    user: userId,
+                    task: task._id,
+                    dueDate: task.dueDate,
+                    daysBefore: daysUntilDue,
+                    message: formatMessage(task, daysUntilDue),
+                    read: false
+                }
+            },
+            { upsert: true }
+        );
+
+        return Notification.findByUser(userId);
+    }
+
+    static async deleteForTask(taskId) {
+        if (!mongoose.Types.ObjectId.isValid(taskId)) {
+            return 0;
+        }
+        const result = await NotificationModel.deleteMany({ task: taskId });
+        return result.deletedCount || 0;
+    }
+
     static async generateForUser(userId, currentDate, formatDate) {
         if (!mongoose.Types.ObjectId.isValid(userId)) {
             return [];
@@ -68,7 +145,7 @@ class Notification {
             await NotificationModel.bulkWrite(operations, { ordered: false });
         }
 
-        return Notification.findByUser(userId, formatDate(currentDate));
+        return Notification.findByUser(userId);
     }
 
     static async markOverdueTasksForUser(userId, currentDate) {
@@ -90,16 +167,12 @@ class Notification {
         return overdueIds.length;
     }
 
-    static async findByUser(userId, currentDateString = null) {
+    static async findByUser(userId) {
         if (!mongoose.Types.ObjectId.isValid(userId)) {
             return [];
         }
 
-        const query = { user: userId };
-        if (currentDateString) {
-            query.createdAt = { $gte: new Date(`${currentDateString}T00:00:00.000Z`) };
-        }
-
+        const query = { user: userId, dismissed: { $ne: true } };
         return await NotificationModel.find(query)
             .populate('task')
             .sort({ read: 1, createdAt: -1 });
@@ -119,6 +192,17 @@ class Notification {
         return await NotificationModel.findByIdAndUpdate(
             id,
             { read: true },
+            { new: true }
+        ).populate('task');
+    }
+
+    static async dismiss(id) {
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return null;
+        }
+        return await NotificationModel.findByIdAndUpdate(
+            id,
+            { dismissed: true },
             { new: true }
         ).populate('task');
     }

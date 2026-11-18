@@ -57,6 +57,7 @@ router.delete('/tasks/:id', TaskController.delete);
 router.post('/notifications/generate', NotificationController.generate);
 router.get('/notifications', NotificationController.findAll);
 router.patch('/notifications/:id/read', NotificationController.markAsRead);
+router.patch('/notifications/:id/dismiss', NotificationController.dismiss);
 
 export default router;
 

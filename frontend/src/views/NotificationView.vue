@@ -23,7 +23,16 @@
         class="notification-card"
         :class="{ unread: !notification.read }"
       >
-        <div>
+        <button
+          class="dismiss-button"
+          type="button"
+          :aria-label="`Ocultar notificação: ${notification.message}`"
+          title="Ocultar notificação"
+          @click="dismissNotification(notification)"
+        >
+          ×
+        </button>
+        <div class="notification-content">
           <span class="notification-status">{{ notification.read ? 'Lida' : 'Nova' }}</span>
           <h2>{{ notification.message }}</h2>
           <p v-if="notification.task?.description">{{ notification.task.description }}</p>
@@ -80,6 +89,14 @@ export default {
       } catch (error) {
         this.errorMessage = error.response?.data?.error || 'Não foi possível atualizar a notificação.';
       }
+    },
+    async dismissNotification(notification) {
+      try {
+        await axiosInstance.patch(`/notifications/${notification._id}/dismiss`);
+        this.notifications = this.notifications.filter((item) => item._id !== notification._id);
+      } catch (error) {
+        this.errorMessage = error.response?.data?.error || 'Não foi possível retirar a notificação.';
+      }
     }
   }
 };
@@ -91,7 +108,10 @@ export default {
 .page-heading h1 { margin: 0 0 6px; }
 .page-heading p { margin: 0; color: #64748b; }
 .notification-list { display: grid; gap: 12px; }
-.notification-card { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 18px; background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; }
+.notification-card { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 18px; background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; }
+.notification-content { flex: 1; min-width: 0; padding-right: 34px; }
+.dismiss-button { position: absolute; top: 10px; right: 10px; width: 28px; height: 28px; display: inline-grid; place-items: center; border: 0; border-radius: 50%; color: #64748b; background: #f1f5f9; font-size: 19px; line-height: 1; }
+.dismiss-button:hover { color: #b91c1c; background: #fee2e2; }
 .notification-card.unread { border-left: 4px solid #f97316; }
 .notification-card h2 { margin: 6px 0; font-size: 17px; }
 .notification-card p { margin: 0 0 8px; color: #475569; overflow-wrap: anywhere; }

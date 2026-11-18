@@ -30,6 +30,10 @@ const NotificationSchema = new mongoose.Schema(
         read: {
             type: Boolean,
             default: false
+        },
+        dismissed: {
+            type: Boolean,
+            default: false
         }
     },
     {

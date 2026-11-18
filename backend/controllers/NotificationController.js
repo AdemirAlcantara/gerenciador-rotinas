@@ -45,6 +45,22 @@ class NotificationController {
             return res.status(500).json({ error: error.message });
         }
     }
+
+    static async dismiss(req, res) {
+        try {
+            const notification = await Notification.findById(req.params.id);
+            if (!notification) {
+                return res.status(404).json({ error: 'Notificação não encontrada' });
+            }
+            if (notification.user.toString() !== req.user.id) {
+                return res.status(403).json({ error: 'Acesso negado a esta notificação' });
+            }
+            await Notification.dismiss(req.params.id);
+            return res.status(204).send();
+        } catch (error) {
+            return res.status(500).json({ error: error.message });
+        }
+    }
 }
 
 export default NotificationController;

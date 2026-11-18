@@ -1,5 +1,6 @@
 import Task from '../models/Task.js';
 import HabitCategory from '../models/HabitCategory.js';
+import Notification from '../models/Notification.js';
 
 class TaskController {
 
@@ -35,6 +36,7 @@ class TaskController {
                 user: req.user.id
             });
             const saved = await newTask.save();
+            await Notification.syncForTask(saved);
             return res.status(201).json(saved);
         } catch (error) {
             return res.status(400).json({ error: error.message });
@@ -93,6 +95,7 @@ class TaskController {
             if (!updated) {
                 return res.status(404).json({ error: 'Tarefa não encontrada' });
             }
+            await Notification.syncForTask(updated);
             return res.status(200).json(updated);
         } catch (error) {
             return res.status(400).json({ error: error.message });
@@ -112,6 +115,7 @@ class TaskController {
             if (!deleted) {
                 return res.status(404).json({ error: 'Tarefa não encontrada' });
             }
+            await Notification.deleteForTask(req.params.id);
             return res.status(200).json({ message: 'Tarefa removida com sucesso' });
         } catch (error) {
             return res.status(500).json({ error: error.message });

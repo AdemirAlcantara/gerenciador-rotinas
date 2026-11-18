@@ -8,7 +8,7 @@
       <div class="form-grid">
         <div class="form-group">
           <label for="date">Data *</label>
-          <input id="date" v-model="form.date" type="date" required />
+          <input id="date" v-model="form.date" type="date" :max="todayDate" required />
         </div>
 
         <div class="form-group">
@@ -105,7 +105,13 @@
 <script>
 import axiosInstance from '../services/axiosInstance';
 
-const today = () => new Date().toISOString().slice(0, 10);
+const today = () => {
+  const date = new Date();
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
 const emptyForm = () => ({
   date: today(),
   habit: '',
@@ -127,7 +133,8 @@ export default {
       loadingList: false,
       loadingOptions: false,
       errorMessage: '',
-      successMessage: ''
+      successMessage: '',
+      todayDate: today()
     };
   },
   mounted() {
@@ -160,6 +167,10 @@ export default {
       }
     },
     async handleSubmit() {
+      if (this.form.date > today()) {
+        this.errorMessage = 'Não é possível criar ou editar um check-in em uma data posterior à atual.';
+        return;
+      }
       this.loading = true;
       this.errorMessage = '';
       this.successMessage = '';
